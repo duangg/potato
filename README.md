@@ -67,16 +67,15 @@ cd ops-center
 	1. topology 数据库主从网络拓扑
 		实时显示数据库主从网络拓扑及同步情况
 
-1. 配置机器
+1. 配置机器 
 	1. mysql数据库机器
      - [安装xtrabackup](https://www.percona.com/doc/percona-xtrabackup/2.4/index.html "安装xtrabackup")
      - mysql创建备份账户
      - 建立数据库备份文件存放目录
-```shell
-mkdir /data/backup/
-```
-
-	1.  web页面配置：
+	```shell
+	mkdir /data/backup/
+	```
+	1. web页面配置：
 配置项主要包括：机器名称，IP，SSH端口，数据库IP、端口、cnf路径，sock路径，备份过程使用的数据库用户名、用户密码，备份文件存放路径。
  ![servers](image/servers.png)
 
