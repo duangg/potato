@@ -31,8 +31,8 @@ go build ops-center.go
 ### 配置
 ```json
 {
-  "ip":"0.0.0.0",                                               #ip地址
-  "port":"8080",                                              #端口号
+  "ip":"0.0.0.0",                    #ip地址
+  "port":"8080",                     #端口号
   "site_name":"operations center",   #系统名称
   "mongo":"0.0.0.0:0000",            #数据库IP及端口
   "sshPrivateKey":"/.ssh/id_rsa",    #SSH私钥路径（不需要加root或其他用户）
@@ -50,11 +50,12 @@ go build ops-center.go
 cd ops-center
 ./ops-center
 ```
+
 ###使用手册
 1. 运行程序
+
 1. 浏览器输入http://127.0.0.1:8080，就可以打开系统web界面
  ![dashboard](image/dashboard.png)
-	web界面说明
 	1. dashboard 任务监控
          显示当前系统中正在运行和运行失败的任务情况
 	1. backups 备份数据
@@ -65,6 +66,7 @@ cd ops-center
 		配置机器信息，机器上面的mysql信息
 	1. topology 数据库主从网络拓扑
 		实时显示数据库主从网络拓扑及同步情况
+
 1. 配置机器
 	1. mysql数据库机器
      - [安装xtrabackup](https://www.percona.com/doc/percona-xtrabackup/2.4/index.html "安装xtrabackup")
@@ -73,15 +75,18 @@ cd ops-center
 	```shell
 	mkdir /data/backup/
 	```
+
 	1.  web页面配置：
 配置项主要包括：机器名称，IP，SSH端口，数据库IP、端口、cnf路径，sock路径，备份过程使用的数据库用户名、用户密码，备份文件存放路径。
  ![servers](image/servers.png)
+
 
 1. 配置SSH
 	1. 生成SSH公私钥
  ```shell
 	ssh-keygen
 	```	
+	
 	1. 得到SSH公钥的内容
 	```shell
 	### ops-center # cd /root/.ssh/
