@@ -72,9 +72,9 @@ cd ops-center
      - [安装xtrabackup](https://www.percona.com/doc/percona-xtrabackup/2.4/index.html "安装xtrabackup")
      - mysql创建备份账户
      - 建立数据库备份文件存放目录
-	```shell
-	mkdir /data/backup/
-	```
+```shell
+mkdir /data/backup/
+```
 
 	1.  web页面配置：
 配置项主要包括：机器名称，IP，SSH端口，数据库IP、端口、cnf路径，sock路径，备份过程使用的数据库用户名、用户密码，备份文件存放路径。
@@ -83,10 +83,10 @@ cd ops-center
 
 1. 配置SSH
 	1. 生成SSH公私钥
- ```shell
-	ssh-keygen
-	```	
-	
+	```shell
+ssh-keygen
+	```
+
 	1. 得到SSH公钥的内容
 	```shell
 	### ops-center # cd /root/.ssh/
@@ -95,6 +95,7 @@ cd ops-center
 	### .ssh # cat id_rsa.pub
 	ssh-rsa AAAAB3N.............................OHwxYYkocb+XV1t3pCtcbnuH5iJ root@###
 	```
+
 	1. 拷贝公钥到数据库机器
 	```shell
 	### ops-center # ssh -p 50022 dba@192.168.2.15
@@ -102,7 +103,7 @@ cd ops-center
 	dba@****:~/.ssh$ ls
 	authorized_keys
 	dba@****:~/.ssh$ cat ssh-rsa AAAAB3N.....root@### >> authorized_keys
-```
+	```
 
 1. crons页面设置定时任务
  ![crons](image/crons.png)
