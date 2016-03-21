@@ -52,9 +52,9 @@ cd ops-center
 ```
 
 ###使用手册
-1. 运行程序
+ 1. 运行程序
 
-1. 浏览器输入http://127.0.0.1:8080，就可以打开系统web界面
+ 2. 浏览器输入http://127.0.0.1:8080，就可以打开系统web界面
  ![dashboard](image/dashboard.png)
 	1. dashboard 任务监控
          显示当前系统中正在运行和运行失败的任务情况
@@ -67,28 +67,26 @@ cd ops-center
 	1. topology 数据库主从网络拓扑
 		实时显示数据库主从网络拓扑及同步情况
 
-1. 配置机器 
-	
-	1. mysql数据库机器
-     - [安装xtrabackup](https://www.percona.com/doc/percona-xtrabackup/2.4/index.html "安装xtrabackup")
-     - mysql创建备份账户
-     - 建立数据库备份文件存放目录
+ 3. 配置机器 
+
+	 1. mysql数据库机器
+	     - [安装xtrabackup](https://www.percona.com/doc/percona-xtrabackup/2.4/index.html "安装xtrabackup")
+	     - mysql创建备份账户
+	     - 建立数据库备份文件存放目录
 	```shell
 	mkdir /data/backup/
 	```
-
-	1. web页面配置：
+	 2. web页面配置
 配置项主要包括：机器名称，IP，SSH端口，数据库IP、端口、cnf路径，sock路径，备份过程使用的数据库用户名、用户密码，备份文件存放路径。
-	 ![servers](image/servers.png)
+![servers](image/servers.png)
 
-
-1. 配置SSH
-	1. 生成SSH公私钥
+ 4. 配置SSH
+  1. 生成SSH公私钥
 	```shell
 	ssh-keygen
 	```
 
-	1. 得到SSH公钥的内容
+  2. 得到SSH公钥的内容
 	```shell
 	### ops-center # cd /root/.ssh/
 	### .ssh # ls
@@ -97,7 +95,7 @@ cd ops-center
 	ssh-rsa AAAAB3N.............................OHwxYYkocb+XV1t3pCtcbnuH5iJ root@###
 	```
 
-	1. 拷贝公钥到数据库机器
+  3. 拷贝公钥到数据库机器
 	```shell
 	### ops-center # ssh -p 50022 dba@192.168.2.15
 	dba@****:~/.ssh$ cd ~/.ssh/
@@ -105,8 +103,7 @@ cd ops-center
 	authorized_keys
 	dba@****:~/.ssh$ cat ssh-rsa AAAAB3N.....root@### >> authorized_keys
 	```
-
-1. crons页面设置定时任务
+ 5. crons页面设置定时任务
 	 ![crons](image/crons.png)
 	1. 选择“添加定时任务”，选择机器名，任务类型，设置cron类型时间点后
 	1. 添加后，任务就进入预运行状态，等待设置时间到达后，开始任务执行
@@ -116,7 +113,7 @@ cd ops-center
 	1. 点击“编辑”按钮，对选中的定时任务进行编辑
 	1. 点击“删除”按钮，删除选中的定时任务
 
-1. topology页面
+ 6. topology页面
  ![topology](image/topology.png)
 该页面显示数据库主从拓扑，实时同步状态。
 箭头指向代表同步方向；曲线实线代表同步状态良好，虚线代表同步存在问题。
