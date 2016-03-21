@@ -55,7 +55,7 @@ cd ops-center
  1. 运行程序
 
  2. 浏览器输入http://127.0.0.1:8080，就可以打开系统web界面
- ![dashboard](image/dashboard.png)
+  ![dashboard](image/dashboard.png)
   1. dashboard 任务监控
          显示当前系统中正在运行和运行失败的任务情况
   1. backups 备份数据
@@ -77,7 +77,7 @@ cd ops-center
 	```
   2. web页面配置
 配置项主要包括：机器名称，IP，SSH端口，数据库IP、端口、cnf路径，sock路径，备份过程使用的数据库用户名、用户密码，备份文件存放路径。
-![servers](image/servers.png)
+  ![servers](image/servers.png)
 
  4. 配置SSH
   1. 生成SSH公私钥
@@ -103,7 +103,7 @@ cd ops-center
 	dba@****:~/.ssh$ cat ssh-rsa AAAAB3N.....root@### >> authorized_keys
 	```
  5. crons页面设置定时任务
-	 ![crons](image/crons.png)
+  ![crons](image/crons.png)
   1. 选择“添加定时任务”，选择机器名，任务类型，设置cron类型时间点后
   1. 添加后，任务就进入预运行状态，等待设置时间到达后，开始任务执行
   1. 点击“暂停”按钮，暂停运行完毕的定时任务
@@ -112,8 +112,14 @@ cd ops-center
   1. 点击“编辑”按钮，对选中的定时任务进行编辑
   1. 点击“删除”按钮，删除选中的定时任务
 
- 6. topology页面
- ![topology](image/topology.png)
+ 
+
+ 6. backups页面
+  ![backups](image/backups.png) 
+  该页面按照数据库机器显示备份文件的各种信息。
+  
+ 7. topology页面
+  ![topology](image/topology.png)
 该页面显示数据库主从拓扑，实时同步状态。
 箭头指向代表同步方向；曲线实线代表同步状态良好，虚线代表同步存在问题。
 
