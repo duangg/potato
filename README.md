@@ -124,5 +124,5 @@ cd ops-center
 箭头指向代表同步方向；曲线实线代表同步状态良好，虚线代表同步存在问题。
 
 ###提交Bug & 建议
- [bug](https://github.com/pandao/editor.md/issues "bug")
+ [bug](https://github.com/SpruceX/potato/issues "bug")
  
