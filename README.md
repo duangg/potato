@@ -24,8 +24,8 @@
 
 - 编译
 ```shell
-cd ops-center
-go build ops-center.go
+cd potato
+go build potato.go
 ```
 
 ### 配置
@@ -47,8 +47,8 @@ go build ops-center.go
 
 ### 运行
 ```shell
-cd ops-center
-./ops-center
+cd potato
+./potato
 ```
 
 ###使用手册
@@ -87,7 +87,7 @@ cd ops-center
 
   2. 得到SSH公钥的内容
 	```shell
-	### ops-center # cd /root/.ssh/
+	### potato # cd /root/.ssh/
 	### .ssh # ls
 	id_rsa  id_rsa.pub  known_hosts
 	### .ssh # cat id_rsa.pub
@@ -96,7 +96,7 @@ cd ops-center
 
   3. 拷贝公钥到数据库机器
 	```shell
-	### ops-center # ssh -p 50022 dba@192.168.2.15
+	### potato # ssh -p 50022 dba@192.168.2.15
 	dba@****:~/.ssh$ cd ~/.ssh/
 	dba@****:~/.ssh$ ls
 	authorized_keys
