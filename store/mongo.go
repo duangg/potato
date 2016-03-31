@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"gopkg.in/mgo.v2"
-	"github.com/SpruceX/utils"
+	"github.com/SpruceX/potato/utils"
 )
 
 type MongoStore struct {
