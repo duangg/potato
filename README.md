@@ -30,17 +30,17 @@ go build potato.go
 ### 配置
 ```json
 {
-  "ip":"127.0.0.1",                    #ip地址
+  "ip":"127.0.0.1",                  #ip地址
   "port":"8080",                     #端口号
-  "site_name":"potato",   #系统名称
-  "mongo":"127.0.0.1:0000",            #数据库IP及端口
+  "site_name":"potato",              #系统名称
+  "mongo":"127.0.0.1:0000",          #数据库IP及端口
   "sshPrivateKey":"/.ssh/id_rsa",    #SSH私钥路径（不需要加root或其他用户）
   "shellname":"xbackup.sh",          #不需要修改
 }
 ```
 ### 依赖
 - SSH
-- mongodb
+- [MongoDB](https://www.mongodb.org "MongoDB")
 
 ### 运行
 ```shell
