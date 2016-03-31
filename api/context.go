@@ -2,7 +2,7 @@ package api
 
 import (
 	"net/http"
-	"github.com/SpruceX/utils"
+	"github.com/SpruceX/potato/utils"
 )
 
 const (
