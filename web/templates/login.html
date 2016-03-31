@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+{{define "login"}}
+<html>
+{{template "header" .}}
+<body class="my-login-background">
+<div class="container">
+    <div class="my-login">
+        <form class="form-signin">
+            <h2 class="form-signin-heading" align="center" style="padding-bottom: 20px;">Ops-Center</h2>
+            <div id="tip" class="alert alert-info alert-dismissable "></div>
+            <label for="inputUsername" class="sr-only">UserName</label>
+            <input type="text" id="inputUsername" class="form-control" placeholder="Email address" required autofocus autocomplete="off">
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="inputPassword" class="form-control" placeholder="Password" required autocomplete="off">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"> Remember me
+                </label>
+            </div>
+        </form>
+        <button id="signin" class="btn btn-lg btn-primary btn-block">Sign in</button>
+    </div>
+</div>
+</body>
+<script name="network">
+    function Login(usrname, password, callback) {
+        if (usrname == "") {
+            $("#tip").text("input username!").fadeIn();
+            return;
+        }
+        if (password == "") {
+            $("#tip").text("input password!").fadeIn();
+            return;
+        }
+        var url = "/api/v1/user/" + usrname + "/login";
+        $.ajax({
+            url: url,
+            type: "POST",
+            complete: callback,
+            data: {password: password}
+        });
+        window.localStorage.setItem("ops-center_username", usrname);
+        var isremember = $("[type='checkbox']").prop("checked");
+        window.localStorage.setItem("ops-center_remember", isremember);
+
+//        if (isremember) {
+//            window.localStorage.setItem("ops-center_password", password);
+//        }
+    }
+</script>
+<script>
+    console.log(document.cookie);
+    $(function () {
+        $("#signin").click(function () {
+            Login($("#inputUsername").val(), $("#inputPassword").val(), function (data) {
+                var resp = JSON.parse(data.responseText);
+                if (resp.errcode == 0) {
+                    window.location.href = "/";
+                } else if (resp.errmsg == "login: The user has logged in") {
+                    $("#tip").text(resp.errmsg + ". go home after 3s").fadeIn();
+                    window.setTimeout(function () {
+                        window.location.href = "/";
+                    }, 2000);
+                } else {
+                    $("#tip").text(resp.errmsg).fadeIn();
+                }
+            });
+        });
+        $("body").keypress(function (e){
+            if (e.keyCode == 13) {
+                $("#signin").click();
+            }
+        });
+        $("#tip").hide();
+        var isremember = window.localStorage.getItem("ops-center_remember") == "true" ? true:false;
+        $("[type='checkbox']").attr("checked",isremember);
+        if (isremember) {
+            $("#inputUsername").val(window.localStorage.getItem("ops-center_username"));
+//            $("#inputPassword").val(window.localStorage.getItem("ops-center_password"));
+        }
+    });
+</script>
+</html>
+{{end}}

@@ -1,0 +1,11 @@
+{{define "database-nav"}}
+<div>
+    {{ with $selected :=. }}
+    <ul class="nav nav-tabs nav-hover navbar-nav navbar-left">
+        {{ range $index, $value := mkslice "dashboard" "backups" "crons" "servers" "topology"}}
+        <li role="presentation" class="{{if eq $selected $value }}active selected{{end}}"><a href="/backup/{{ $value }}">{{ $value }}</a></li>
+        {{ end }}
+    </ul>
+    {{end}}
+</div>
+{{end}}

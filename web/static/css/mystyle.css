@@ -1,0 +1,217 @@
+.nav-hover li a {
+    transition: all .4s;
+}
+
+.nav-hover li:not(.active):hover a {
+    box-shadow: 0px 5px 5px 0 rgba(0, 0, 0, 0.7);
+    transition: all .4s;
+}
+
+.my-table-hover tbody tr:hover {
+    background-color: #e8e8e8;
+    transition: all .4s;
+}
+
+table.my-table-hover:hover {
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.7);
+    transition: all .4s;
+}
+
+.my-child-table-hover:hover + tr td,
+.my-child-table-hover:hover td {
+    background: #d9edf7;
+    transition: all .4s;
+}
+
+.my-child-table-hover + tr {
+    border-style: none;
+    transition: all .4s;
+}
+
+a.my-link:link,
+a.my-link:visited,
+a.my-link:hover,
+a.my-link:active {
+    color: #0044cc;
+}
+
+table.my-child-table {
+    margin: 0;
+    padding: 0;
+    border-left: none;
+    border-right: none;
+}
+
+table.my-child-table tbody {
+    border-left: none;
+    border-right: none;
+}
+
+.my-button {
+    position: relative;
+    display: inline-block;
+    outline: none;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #286aab;
+}
+
+.my-fix-width {
+    width: 1200px;
+    min-width: 1300px;
+}
+
+.form-ele {
+    padding: 20px;
+}
+
+.modal-content {
+    padding: 20px;
+}
+
+.modal-cron-histories {
+    width: 900px;
+}
+
+.selectize-control.single .selectize-input::after {
+    display: none;
+    border-style: hidden;
+}
+
+.search-box-focus {
+    width: 90%;
+    margin: 5%;
+}
+
+.caption {
+    font-size: 12px;
+    display: block;
+    opacity: 0.5;
+}
+
+.childCheckbox {
+    padding-left: 20px;
+}
+
+.my-login {
+    position: absolute;
+    left: 35%;
+    top: 20%;
+    width: 30%;
+    height: auto;
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.7);
+    padding: 30px;
+    background-color: white;
+    opacity: 0.8;
+    border-radius: 10%;
+}
+
+.my-login-background {
+    background: url("/static/image/grey.png") repeat;
+    background-size:auto;
+}
+
+.running-tasks-table-wrapper, .failed-tasks-table-wrapper {
+    margin-right: 0;
+    margin-left: 0;
+    background-color: #fff;
+    border-radius: 4px 4px 0 0;
+    border: 1px solid #ddd;
+    padding: 10px 10px 10px 10px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    margin-top: 15px;
+}
+
+/*.running-tasks-table-wrapper::before{*/
+    /*top: 15px;*/
+    /*left: 15px;*/
+    /*font-size: 15px;*/
+    /*font-weight: 700;*/
+    /*color: #959595;*/
+    /*text-transform: uppercase;*/
+    /*letter-spacing: 1px;*/
+    /*content: "正在运行中的任务";*/
+/*}*/
+
+/*.failed-tasks-table-wrapper::before{*/
+    /*top: 15px;*/
+    /*left: 15px;*/
+    /*font-size: 15px;*/
+    /*font-weight: 700;*/
+    /*color: #959595;*/
+    /*text-transform: uppercase;*/
+    /*letter-spacing: 1px;*/
+    /*content: "失败的任务";*/
+/*}*/
+
+/*.running-tasks-table, .failed-tasks-table {*/
+    /*margin-top: 15px;*/
+/*}*/
+
+.headline {
+    margin-top: 10px;
+}
+
+
+circle.database {
+    fill: #ccc;
+    stroke: #333;
+    stroke-width: 1.5px;
+}
+
+text.database {
+    font: 10px sans-serif;
+    pointer-events: none;
+    text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+.link {
+    fill: none;
+    stroke: #666;
+    stroke-width: 1.5px;
+}
+
+.marker.connect path{
+    fill: green;
+    stroke: none;
+}
+
+.marker.disconnect path{
+    fill: none;
+    stroke: red;
+    stroke-width: 1.5px;
+    stroke-dasharray: 1, 1;
+}
+
+
+.link.connect {
+    stroke: green;
+}
+
+.link.disconnect {
+    stroke: red;
+    stroke-dasharray: 0, 2 1;
+}
+
+svg.topology {
+    /*border: solid;*/
+    /*border-width: medium;*/
+    /*border-color: #080808;*/
+    width: 100%;
+    height: 100%;
+}
+
+
+div.info-board {
+    width: auto;
+    height: auto;
+    position: fixed;
+    background: white url("/static/image/grey.png") repeat;
+    opacity: 1;
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 5px 5px 5px #888888;
+    display: none;
+}

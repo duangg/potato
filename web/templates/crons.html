@@ -1,0 +1,517 @@
+{{define "crons"}}
+<html>
+{{template "header" .}}
+<body>
+{{template "top-nav" .}}
+<div class="container" style="padding-top:60px;">
+    <div class="alert alert-info alert-dismissable visible-xs ">
+        请拉伸窗口～～～～～～
+    </div>
+    <nav class="navbar navbar-default hidden-xs" role="navigation">
+        {{template "database-nav" "crons"}}
+        <div>
+            <form class="navbar-form navbar-right">
+                <button style="margin-right: 20px" class="btn btn-default " type="button" data-toggle="modal"
+                        data-target="#addModal" data-bind="click: loadIPs">
+                    添加定时任务
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <div id="notification-area">
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr data-bind="template: { name: 'TitleTemplate', foreach: columnHeaders, as: 'title' }"></tr>
+
+        <script type="text/html" id="TitleTemplate">
+            <th>
+                <strong data-bind="text: name"></strong>
+            </th>
+        </script>
+        </thead>
+        <tbody data-bind="template: { name: 'dataTemplate', foreach: crons, as: 'data', }"></tbody>
+        <script type="text/html" id="dataTemplate">
+            <tr data-bind="event: { mouseover: select}">
+                <td data-bind="text: data.host"></td>
+                <td data-bind="text: data.timer"></td>
+                <td data-bind="text: data.displayForType"></td>
+                <td><i data-bind="css: cssForCronStatus(data.runStatus)"></i></td>
+                <!--ko ifnot:enabled-->
+                <td><a class="button" href='#' data-bind="click: enableCron"><i class="glyphicon glyphicon-play"></i></a></td>
+                <!--/ko-->
+                <!--ko if:enabled-->
+                <td><a class="button" href='#' data-bind="click: disableCron"><i class="glyphicon glyphicon-pause"></i></a></td>
+                <!--/ko-->
+                <td><a class="button" href="#" data-toggle="modal" data-target="#consoleModal"><i class="fa fa-desktop"></i></a></td>
+                <td>
+                    <a href="#" data-toggle="modal" data-target="#executionHisotryModal"
+                       data-bind="click: loadCronHistories">查看</a>
+                </td>
+                <td data-bind="text: formatter.getDatetime(startTime)"></td>
+                <td data-bind="text: formatter.getDatetime(refreshTime)"></td>
+                <td>
+                    <a class="button" href='#' data-bind="click: deleteCron">删除</a>
+                    <a class="button" href='#' data-toggle="modal" data-target="#editModal" data-bind="click: loadIPs">编辑</a>
+                </td>
+            </tr>
+        </script>
+    </table>
+</div>
+
+<div class="modal fade" id="consoleModal" tabindex="-1" role="dialog"
+     aria-labelledby="consoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <div class="form-group">
+                    <h4 class="modal-title text-center">
+                        实时任务输出
+                    </h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div clss="row">
+                    <a style="float:right" class="button" href="#" data-bind="click: refreshConsole"><i class="fa fa-refresh"></i></a>
+                </div>
+                <div class="row">
+                    <textarea id="cron-console" disabled style="width:100%;height: 80%" data-bind="text: console"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="executionHisotryModal" tabindex="-1" role="dialog"
+     aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-cron-histories">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <div class="form-group">
+                    <h4 class="modal-title text-center" id="executionHistory">
+                        任务执行记录
+                    </h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>目标主机</th>
+                            <th>是否成功</th>
+                            <th>output</th>
+                            <th>error</th>
+                            <th>开始时间</th>
+                            <th>结束时间</th>
+                        </tr>
+                        </thead>
+
+                        <tbody data-bind="template: { name: 'cronHistoryBodyTmpl', foreach: cronHistories, as: 'data', }"></tbody>
+
+                        <script type="text/html" id="cronHistoryBodyTmpl">
+                            <tr>
+                                <td data-bind="text:data.servername"></td>
+                                <td data-bind="text:data.result"></td>
+                                <td><textarea disabled data-bind="text:data.output"></textarea></td>
+                                <td data-bind="text:data.errinfo"></td>
+                                <td data-bind="text:formatter.getDatetime(starttime)"></td>
+                                <td data-bind="text:formatter.getDatetime(endtime)"></td>
+                            </tr>
+                        </script>
+
+                    </table>
+                </div>
+                <div class="row">
+                    <nav style="text-align: center">
+                        <ul id="cron-history-pages" class="pagination"></ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog"
+     aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <div class="form-group">
+                    <h4 class="modal-title text-center" id="addModalLabel">
+                        添加定时任务
+                    </h4>
+
+                    <div id="add-success" hidden class="alert alert-success">
+                        提交成功～
+                    </div>
+                    <div id="add-fail" hidden class="alert alert-danger">
+                        提交失败了～
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group">
+                        <div class="form-ele">
+                            <label for="add-name">周期 (格式：秒，分钟，小时，天，月，周)</label>
+                            <input data-bind="value: newCron" id="add-name" name="cron" type="text" class="form-control"
+                                   placeholder="* 1 * * *">
+                        </div>
+                        <div class="form-ele">
+                            <label for="select-backup-type">选择任务类型</label>
+                            <select id="select-backup-type" data-bind="options: availableBackupTypes,
+                                               optionsText: 'name',
+                                               value: selectedBackupType">
+                            </select>
+                        </div>
+                        <div class="form-ele">
+                            <label for="select-target">选择目标主机</label>
+                            <select id="select-target" data-bind="options: availableServers,
+                                               value: selectedServer,
+                                               optionsCaption: '选择...'">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    关闭
+                </button>
+                <button type="button" class="btn btn-primary" data-bind="click: addCron">
+                    添加
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog"
+     aria-labelledby="editModalLabel" aria-hidden="true" data-bind="with: selected">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <div class="form-group">
+                    <h4 class="modal-title text-center" id="editModalLabel">
+                        编辑定时任务
+                    </h4>
+                    <div id="edit-success" hidden class="alert alert-success">
+                        提交成功～
+                    </div>
+                    <div id="edit-fail" hidden class="alert alert-danger">
+                        提交失败了～
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group">
+                        <div class="form-ele">
+                            <label for="edit-name">周期</label>
+                            <input data-bind="value: timer" id="edit-name" name="cron" type="text" class="form-control"
+                                   placeholder="* 1 * * *" >
+                        </div>
+                        <div class="form-ele">
+                            <label for="edit-backup-type">选择任务类型</label>
+                            <select id="edit-backup-type" data-bind="options: availableBackupTypes,
+                                               optionsText: 'name',
+                                               optionsValue: 'id',
+                                               value: type">
+                            </select>
+                        </div>
+                        <div class="form-ele">
+                            <label for="edit-target">选择目标主机</label>
+                            <select id="edit-target" data-bind="options: availableServers,
+                                               value: host,">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    关闭
+                </button>
+                <button type="button" class="btn btn-primary" data-bind="click: updateCron">
+                    保存
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" name="netcall">
+    var cronApi = {
+        newCron: function (cronText, backupType, target, callback) {
+            $.post("/api/v1/crons/", {cron: cronText, type: backupType, host: target}, callback, 'json');
+        },
+        getListOfIps: function (callback) {
+            $.getJSON("/api/v1/hosts/ips", callback)
+        },
+        getListOfHosts: function (callback) {
+            $.getJSON("/api/v1/hosts/getallhosts", callback);
+        },
+        getCrons: function (callback) {
+            $.getJSON("/api/v1/crons/", callback);
+        },
+        getCronHistories: function (cronId, callback) {
+            $.getJSON("/api/v1/jobresults/page", {cronid: cronId, pn: 0}, callback);
+        },
+        deleteCron: function (cronId, callback) {
+            $.ajax({url:"/api/v1/crons/" + cronId, method:'DELETE', dataType:'json', success: callback});
+        },
+        updateCron: function (cronId, update, callback) {
+            $.ajax({url:"/api/v1/crons/" + cronId, method:'PUT', data:update, dataType:'json', success: callback});
+        },
+        disableCron: function (cronId, callback) {
+            $.getJSON('/api/v1/crons/' + cronId + '/disable', callback);
+        },
+        enableCron: function (cronId, callback) {
+            $.getJSON('/api/v1/crons/' + cronId + '/enable', callback);
+        },
+        getConsole: function (cronId, callback) {
+            $.getJSON('/api/v1/jobresults/last', {cronid: cronId, number: 1}, callback);
+        }
+    }
+</script>
+
+<script>
+    var backupType = function (id, displayName) {
+        this.id = id + '';
+        this.name = displayName;
+    };
+    var viewModel = function () {
+        var self = this;
+        self.crons = ko.observableArray([]);
+        self.columnHeaders = ko.observableArray([
+            {name: '目标主机'},
+            {name: '周期'},
+            {name: '任务类型'},
+            {name: '运行状态'},
+            {name: 'Play'},
+            {name: '控制台'},
+            {name: '执行记录'},
+            {name: '创建时间'},
+            {name: '修改时间'},
+            {name: '操作'}
+        ]);
+        self.availableServers = ko.observableArray([]);
+        self.selectedServer = ko.observable();
+        self.availableBackupTypes = ko.observableArray($.map(BackupTypes, function (value, key) {
+            return new backupType(key, value);
+        }));
+        self.defaultBackupType = ko.computed(function () {
+            return ko.utils.arrayFirst(self.availableBackupTypes(), function (item) {
+                return item.id === '1';
+            });
+        });
+        self.getBackupType = function (typeId) {
+            return ko.utils.arrayFirst(self.availableBackupTypes(), function (item) {
+                return item.id === typeId + '';
+            });
+        };
+        self.selectedBackupType = ko.observable(self.defaultBackupType());
+        self.newCron = ko.observable();
+        self.addCron = function () {
+            cronApi.newCron(self.newCron, self.selectedBackupType().id, self.selectedServer(),
+                    function (data, textStatus, xhr) {
+                        if (data.errcode == 0) {
+                            $("#add-success").fadeIn();
+                            window.setTimeout(function () {
+                                $("#add-success").fadeOut();
+                                $('#addModal').modal('hide');
+                                self.loadCrons();
+                            }, 1000);
+                        } else {
+                            $("#add-fail").fadeIn();
+                            window.setTimeout(function () {
+                                $("#add-fail").fadeOut();
+                            }, 1000);
+                        }
+                    })
+        };
+        self.loadIPs = function () {
+            cronApi.getListOfHosts(function (data, textStatus, xhr) {
+                if (data.errcode == 0) {
+                    if (data.data != null){
+                        self.availableServers.removeAll();
+                        data.data.forEach(function (item) {
+                            self.availableServers.push(item.name);
+                        })
+                    }
+                }
+            });
+        };
+        self.select = function (item) {
+            self.selected(item);
+        };
+        self.selected = ko.observable();
+        self.loadCrons = function () {
+            cronApi.getCrons(function (data) {
+                if (data.errcode == 0) {
+                    if (data.data != null){
+                        self.crons.removeAll();
+                        data.data.forEach(function (item) {
+                            item.displayForType = BackupTypes[item.type];
+                            if (item.status == 4){
+                                item.enabled = ko.observable(true);
+                            }else{
+                                item.enabled = ko.observable(false);
+                            }
+                            self.crons.push(item);
+                        });
+                    }
+                }
+            });
+        };
+
+        self.cronHistories = ko.observableArray([]);
+        self.loadCronHistories = function () {
+            cronApi.getCronHistories(self.selected().id, function (data, textStats, xhr) {
+                self.cronHistories.removeAll();
+                if (data.errcode == 0) {
+                    self.cronHistories(data.data.map(
+                            function(item){
+                                item.result = function (itemStatus) {
+                                    switch (itemStatus) {
+                                        case 1:
+                                            return '进行中';
+                                        case 2:
+                                            return '失败';
+                                        case 3:
+                                            return '成功';
+                                        default:
+                                            return '未知';
+                                    }
+                                }(item.status);
+                                return item;
+                            }));
+                }
+            });
+        };
+
+        self.deleteCron = function () {
+            if (confirm('你确定要删除这条记录吗?')){
+                cronApi.deleteCron(self.selected().id, function (data) {
+                    if (data.errcode == 0) {
+                        self.crons.remove(self.selected());
+                        self.showGlobalOk(data.data);
+                    }else{
+                        self.showGlobalErr(data.errmsg);
+                    }
+                });
+            }
+        };
+
+        self.enableCron = function() {
+            cronApi.enableCron(self.selected().id, function (data) {
+                if (data.errcode == 0){
+                    self.selected().enabled(true);
+                    self.showGlobalOk(data.data);
+                }else{
+                    self.showGlobalErr(data.errmsg);
+                }
+            })
+        };
+
+        self.disableCron = function() {
+            cronApi.disableCron(self.selected().id, function (data, textStatus, xhr) {
+                if (data.errcode == 0) {
+                    self.selected().enabled(false);
+                    self.showGlobalOk(data.data);
+                }else{
+                    self.showGlobalErr(data.errmsg);
+                }
+            });
+        };
+
+        self.cronToUpdate = ko.observable();
+        self.updateCron = function() {
+            cronApi.updateCron(self.selected().id, {host: self.selected().host, cron: self.selected().timer, type: self.selected().type}, function(data){
+               if (data.errcode ==0) {
+                   $("#edit-success").fadeIn();
+                   window.setTimeout(function () {
+                       $("#edit-success").fadeOut();
+                       $('#editModal').modal('hide');
+                       self.loadCrons();
+                   }, 1000);
+               } else {
+                   $("#edit-fail").fadeIn();
+                   window.setTimeout(function () {
+                       $("#edit-fail").fadeOut();
+                   }, 1000);
+               }
+            });
+        };
+        self.opSuccess = ko.observable(false);
+        self.opFailure = ko.observable(true);
+        self.showGlobalErr = function (msg){
+            var noticeEle = $('#notification-area');
+            noticeEle.html(noticeEle.html() + '<div class="alert alert-danger alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>失败</strong>'+ msg +'</div>');
+        };
+        self.showGlobalOk = function (msg) {
+            var noticeEle = $('#notification-area');
+            noticeEle.html(noticeEle.html() + '<div class="alert alert-success alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>成功</strong>'+ msg +'</div>');
+        };
+
+        self.cssForCronStatus = function (cronStatus) {
+            switch (cronStatus) {
+                case -1:
+                    return 'fa fa-spinner fa-spin';
+                case 0:
+                    return 'fa fa-cog';
+                case 1:
+                    return 'fa fa-cog fa-spin';
+                case 2:
+                    return 'fa fa-exclamation-triangle';
+            }
+        };
+
+        self.console = ko.observable('');
+        self.scrollConsole = function () {
+            var cronConsole = $('#cron-console');
+            cronConsole.scrollTop(cronConsole[0].scrollHeight - cronConsole.height());
+        };
+
+        $('#consoleModal').on('shown.bs.modal', function(){
+            self.refreshConsole();
+        });
+        self.refreshConsole = function (){
+            cronApi.getConsole(self.selected().id, function(data){
+                self.console('');
+                if (data.errcode == 0){
+                    if (data.data) {
+                        self.console(data.data.shift().output);
+                        self.scrollConsole();
+                    }
+                }
+            });
+        };
+        self.loadCrons();
+    };
+    ko.applyBindings(viewModel);
+    $(function () { $("[data-toggle='tooltip']").tooltip(); });
+</script>
+{{template "footer" .}}
+</body>
+</html>
+{{end}}

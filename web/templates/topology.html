@@ -1,0 +1,26 @@
+{{define "topology"}}
+<html>
+{{template "header" .}}
+<head>
+    <script type="text/javascript" src="/static/js/d3.min.js"></script>
+</head>
+<body>
+{{template "top-nav" .}}
+<div id="container" class="container" style="padding-top:60px;">
+    <nav class="navbar navbar-default hidden-xs" role="navigation">
+        {{template "database-nav" "topology"}}
+        <div>
+            <form class="navbar-form navbar-right">
+                <button style="margin-right: 20px" class="btn btn-default " type="button" onclick="topology.display();">
+                    刷新
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+<script type="text/javascript" src="/static/js/topology.js">
+</script>
+{{template "footer" .}}
+</body>
+</html>
+{{end}}

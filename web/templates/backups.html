@@ -1,0 +1,456 @@
+{{define "home"}}
+<html>
+{{template "header" .}}
+<body>
+{{template "top-nav" .}}
+<div class="container" style="padding-top:60px;">
+    <nav class="navbar navbar-default" role="navigation">
+        {{template "database-nav" "backups"}}
+        <div>
+            <form class="navbar-form navbar-right" role="toolbar">
+                <button id="btn-restore" style="margin-right: 20px" disabled="disabled" class="btn btn-default"
+                        type="button" data-toggle="modal"
+                        data-target="#restoreConfirm">恢复备份
+                </button>
+            </form>
+        </div>
+    </nav>
+    <div class="control-group search-box-focus">
+        <select id="select-database" class="server-names" placeholder="选择数据库主机..."
+                data-bind="value: selectedDatabase, event: {change: onSelectDatabase}">
+        </select>
+    </div>
+    <table id="table" style="margin-top: 10px;" class="table table-striped table-bordered my-table-hover hidden">
+        <thead>
+        <tr data-bind="foreach:ColumnHeader">
+            <th>
+                <strong data-bind="text: name"></strong>
+            </th>
+        </tr>
+        </thead>
+        <tbody data-bind="template:{ name: 'dataTemplate', foreach:backups, as: 'data'}">
+        </tbody>
+    </table>
+</div>
+
+
+<script type="text/html" id="dataTemplate">
+    <tr data-bind="click: $parent.onL1Clicked">
+        <td width="5%">
+            <!--ko if:ChildrenShow-->
+            <a href=""><i class='glyphicon glyphicon-minus'></i></a>
+            <!--/ko-->
+            <!--ko ifnot:ChildrenShow-->
+            <a href=""><i class='glyphicon glyphicon-plus'></i></a>
+            <!--/ko-->
+            <!--ko if:isChecked-->
+            <a href='#' class=""><i class='glyphicon glyphicon-check'></i></a>
+            <!--/ko-->
+        </td>
+        <td width="10%" data-bind="text:data.servername"></td>
+        <td width="30%" data-bind="text:data.filepath"></td>
+        <td width="10%" data-bind="text:data.size"></td>
+        <td width="10%" data-bind="text:data.date"></td>
+        <td width="15%" data-bind="text:formatter.getDatetime(time)"></td>
+        <td width="10%" data-bind="text:data.backuptype"></td>
+    </tr>
+    <!-- ko foreach: ChildData -->
+    <tr data-bind="click:function(){$parentContext.$parent.childrenSelect($parentContext.$index(), $index());}, visible:$parent.ChildrenShow">
+        <td width="5%"><a href='#' class="my-link childCheckbox">
+            <!--ko ifnot:isChecked-->
+            <i class='glyphicon glyphicon-unchecked'></i>
+            <!--/ko-->
+            <!--ko if:isChecked-->
+            <i class='glyphicon glyphicon-check'></i>
+            <!--/ko-->
+        </a></td>
+        <td width="10%" data-bind="text:servername"></td>
+        <td width="30%" data-bind="text:filepath"></td>
+        <td width="10%" data-bind="text:size"></td>
+        <td width="15%" data-bind="text:date"></td>
+        <td width="15%" data-bind="text:formatter.getDatetime(time)"></td>
+        <td width="5%" data-bind="text:backuptype"></td>
+    </tr>
+    <!-- /ko -->
+</script>
+
+<!--&lt;!&ndash; 模态框（Modal） &ndash;&gt;-->
+<!--<div class="modal fade" id="addModal" tabindex="-1" role="dialog"-->
+<!--aria-hidden="true">-->
+<!--<div class="modal-dialog modal-full"-->
+<!--style="top:10px; left: 10px; right:10px; margin: 0; z-index: 1; max-width: 100%;">-->
+<!--<div class="modal-content">-->
+<!--<div class="modal-header">-->
+<!--<button type="button" class="close"-->
+<!--data-dismiss="modal" aria-hidden="true">-->
+<!--&times;-->
+<!--</button>-->
+<!--<h4 class="modal-title" id="addModalLabel">-->
+<!--添加一条记录-->
+<!--</h4>-->
+<!--</div>-->
+<!--<div class="modal-body">-->
+<!--<form id="add" method="post" class="form-horizontal" role="form">-->
+<!--<div class="col-lg-6 form-group">-->
+<!--<label>文件名</label>-->
+<!--<input id="name" type="text" name="name" class="form-control"/>-->
+<!--</div>-->
+<!--<div class="col-lg-6 form-group">-->
+<!--<label>target</label>-->
+<!--<input id="target" type="text" name="target" class="form-control"/>-->
+<!--</div>-->
+<!--<div class="col-lg-6 form-group">-->
+<!--<label>storage</label>-->
+<!--<input type="text" id="storage" name="storage" class="form-control"/>-->
+<!--</div>-->
+<!--<div class="col-lg-6 form-group">-->
+<!--<label>路径</label>-->
+<!--<input type="text" id="way" name="way" class="form-control"/>-->
+<!--</div>-->
+<!--<div class="col-lg-6 form-group">-->
+<!--<label>大小</label>-->
+<!--<input type="text" id="size" name="way" class="form-control"/>-->
+<!--</div>-->
+<!--<div class="col-lg-6 form-group">-->
+<!--<label>创建时间</label>-->
+<!--<input type="text" id="create" name="create" class="form-control"/>-->
+<!--</div>-->
+<!--<div class="col-lg-6 form-group">-->
+<!--<label>类型</label>-->
+<!--<input type="text" id="type" name="type" class="form-control"/>-->
+<!--</div>-->
+<!--</form>-->
+<!--</div>-->
+
+<!--<div class="modal-footer">-->
+<!--<label></label>-->
+
+<!--<div class="col-lg-3">-->
+<!--<button type="button" class="btn btn-default"-->
+<!--data-dismiss="modal">关闭-->
+<!--</button>-->
+<!--</div>-->
+<!--<div class="col-lg-3">-->
+<!--<button type="submit" class="btn btn-primary" id="add-submit" form="add">-->
+<!--ADD-->
+<!--</button>-->
+<!--</div>-->
+
+<!--</div>-->
+<!--</div>-->
+<!--&lt;!&ndash; /.modal-content &ndash;&gt;-->
+<!--</div>-->
+<!--</div>-->
+
+<div class="modal fade" id="restoreConfirm" tabindex="-1">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>
+                    还原确认
+                </h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                    <tr data-bind="foreach:{data:ColumnHeader, as:'data'}">
+                        <td data-bind="text:name"></td>
+                    </tr>
+                    </thead>
+                    <tbody data-bind="foreach:confirmRestore">
+                    <tr>
+                        <td width="5%"><a href="#" onclick="return false;"><i class='glyphicon glyphicon-ok'></i></a>
+                        </td>
+                        <td width="10%" data-bind="text:servername"></td>
+                        <td width="30%" data-bind="text:filepath"></td>
+                        <td width="10%" data-bind="text:size"></td>
+                        <td width="15%" data-bind="text:date"></td>
+                        <td width="15%" data-bind="text:formatter.getDatetime(time)"></td>
+                        <td width="5%" data-bind="text:backuptype"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-bind="click: onConfirmRestore">
+                    确定
+                </button>
+                <button type="button" class="btn btn-default"
+                        data-dismiss="modal">关闭
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog"
+     aria-hidden="true">
+    <div class="modal-dialog modal-full"
+         style="top:10px; left: 10px; right:10px; margin: 0; z-index: 1; max-width: 100%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title">
+                    编辑一条记录
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="edit" method="post" class="form-horizontal" role="form">
+                    <div class="col-lg-6 form-group">
+                        <label>文件名</label>
+                        <input id="name_edit" type="text" name="name" class="form-control"/>
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>target</label>
+                        <input id="target_edit" type="text" name="target" class="form-control"/>
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>storage</label>
+                        <input type="text" id="storage_edit" name="storage" class="form-control"/>
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>路径</label>
+                        <input type="text" id="way_edit" name="way" class="form-control"/>
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>大小</label>
+                        <input type="text" id="size_edit" name="way" class="form-control"/>
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>创建时间</label>
+                        <input type="text" id="create_edit" name="create" class="form-control"/>
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>类型</label>
+                        <input type="text" id="type_edit" name="type" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="col-lg-3 form-group">
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">关闭
+                    </button>
+                </div>
+                <div class="col-lg-3 form-group">
+                    <button type="submit" class="btn btn-primary" id="edit-submit" form="add">
+                        Update
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+
+
+<script type="text/javascript" name="network">
+    function GetBackupByNamePage(name, pn, callback) {
+        jQuery.getJSON("/api/v1/backup/?name=" + name + "&pn=" + pn, null, callback);
+    }
+    function GetNumberOfPage(name, cb) {
+        var _promise = $.ajax("/api/v1/backup/info?name=" + name, {
+            method: "get"
+        });
+        _promise.then(function(d){
+            var _data = JSON.parse(d);
+            if (_data.errcode != 0) {
+                alert(_data.errmsg);
+                return;
+            }
+            console.log(_data.data);
+            cb (Math.floor(_data.data[0] / _data.data[1]) + 1);
+        });
+    }
+    function GetBackupByName(name,cb) {
+        jQuery.getJSON("/api/v1/backup/" + name , null, cb);
+    }
+</script>
+
+<script>
+    enter("table");
+</script>
+
+
+
+<script>
+    var viewModel = function () {
+        var self = this;
+        self.currChecked = {pindex: -1, cindex: -1};
+        self.confirmRestore = ko.observableArray();
+        self.backups = ko.observableArray();
+        self.pushItem = function (data, dest) {
+            var mydata = {};
+            mydata.ChildrenShow = ko.observable(false);
+            mydata.ChildData = ko.observableArray();
+            for (var i in data.datafileinfos) {
+                if (data.datafileinfos[i].backuptype == 0) {
+                    mydata.backuptype = BackupTypes[data.datafileinfos[i].backuptype];
+                    mydata.filepath = data.datafileinfos[i].filepath;
+                    mydata.job_id = data.datafileinfos[i].job_id;
+                    mydata.size = data.datafileinfos[i].size + " kb";
+                    mydata.time = data.datafileinfos[i].time;
+                    console.log(data.datafileinfos[i].time);
+                    mydata.date = data.datafileinfos[i].date;
+                    mydata.id = data.datafileinfos[i].id;
+                    mydata.servername = data.datafileinfos[i].servername;
+                    mydata.isChecked = ko.observable(false);
+                } else {
+                    mydata.ChildData.push({
+                        backuptype: BackupTypes[data.datafileinfos[i].backuptype],
+                        filepath: data.datafileinfos[i].filepath,
+                        job_id: data.datafileinfos[i].job_id,
+                        size: data.datafileinfos[i].size + " kb",
+                        time: data.datafileinfos[i].time,
+                        id: data.datafileinfos[i].id,
+                        date: data.datafileinfos[i].date,
+                        servername: data.datafileinfos[i].servername,
+                        isChecked: ko.observable(false),
+                    });
+                }
+            }
+            dest.push(mydata);
+        };
+        self.ColumnHeader = ko.observableArray([
+            {name: ''},
+            {name: '主机名'},
+            {name: '文件路径'},
+            {name: '文件大小'},
+            {name: '备份日期'},
+            {name: '修改日期'},
+            {name: '备份类型'}
+        ]);
+        //选择之后被选择数据放在confirmRestore
+        self.childrenSelect = function (pindex, index) {
+            var children = self.backups()[pindex].ChildData();
+            var parent = self.backups()[pindex];
+            children[index].isChecked(!children[index].isChecked());
+            if (self.currChecked.pindex >= 0 && self.currChecked.cindex >= 0) {
+                self.backups()[self.currChecked.pindex].ChildData()[self.currChecked.cindex].isChecked(false);
+            }
+            if (children[index].isChecked()) {
+                self.currChecked.pindex = pindex;
+                self.currChecked.cindex = index;
+                $("#btn-restore").removeAttr("disabled");
+                self.confirmRestore.removeAll();
+                self.confirmRestore.push(parent);
+                self.confirmRestore.push(children[index]);
+            } else {
+                $("#btn-restore").attr("disabled", "disabled");
+                self.currChecked.pindex = -1;
+                self.currChecked.cindex = -1;
+            }
+        };
+        self.markAllUncheckedExcept = function () {
+            self.backups().forEach(function (item) {
+                item.isChecked(false);
+            });
+        };
+
+        self.collapseAllExpands = function(){
+            self.backups().forEach(function (item) {
+                item.ChildrenShow(false);
+            });
+        };
+
+        self.onL1Clicked = function (content, target) {
+
+            self.confirmRestore.removeAll();
+            var wasExpanded = content.ChildrenShow();
+            self.collapseAllExpands();
+            if (wasExpanded) {
+                content.ChildrenShow(false);
+            }else{
+                content.ChildrenShow(true);
+                self.confirmRestore.push(content);
+            }
+            if (content.isChecked()){
+                content.isChecked(false);
+            }else{
+                self.markAllUncheckedExcept();
+                content.isChecked(true);
+            }
+
+            if (self.confirmRestore().length >0 ){
+                $("#btn-restore").removeAttr("disabled");
+            }else{
+                $("#btn-restore").attr("disabled", "disabled");
+            }
+        };
+
+        self.selectedDatabase = ko.observable();
+        self.CbGetdata = function (content, rtext, data) {
+            if (rtext == "success" && content.errcode == 0) {
+                $('.control-group').removeClass('search-box-focus');
+                $('#table').removeClass('hidden');
+                var backupFiles = content.data;
+                var currentFul = '';
+                var backups = _.groupBy(backupFiles, function (item) {
+                    if (item.backuptype == 0) {
+                        currentFul = 'ful_' + item.time;
+                    }
+                    return currentFul;
+                });
+                self.backups.removeAll();
+                for (var i in backups) {
+                    self.pushItem({datafileinfos: backups[i]}, self.backups);
+                }
+            } else {
+                alert(content.errmsg());
+            }
+        };
+        self.onSelectDatabase = function () {
+            GetBackupByName(this.selectedDatabase(),self.CbGetdata);
+        };
+
+        self.onConfirmRestore = function () {
+            self.confirmRestore();
+        };
+
+    };
+
+    var vm = new viewModel();
+    console.log(vm);
+    ko.applyBindings(vm);
+
+    $.getJSON("/api/v1/hosts/dbs", function (data) {
+        if (data.errcode == 0) {
+            databases = data.data;
+            $('#select-database').selectize({
+                persistent: false,
+                valueField: 'name',
+                labelField: 'name',
+                searchField: ['name', 'ip'],
+                options: databases,
+                render: {
+                    option: function (item, escape) {
+                        var label = item.name;
+                        var caption = item.ip + ":" + item.port;
+                        return '<div>' +
+                                '<span>' + escape(label) + '</span>' +
+                                (caption ? '<span class="caption">' + escape(caption) + '</span>' : '') +
+                                '</div>';
+                    }
+                }
+            });
+        }
+    })
+</script>
+
+
+<script type="text/javascript" name="my-pagenator-init">
+    var myPagenator = new pagenator("pages", SwitchPage);
+    function SwitchPage(pn) {
+        GetBackupByNamePage(vm.selectedDatabase(), pn, self.CbGetdata);
+    }
+</script>
+
+{{template "footer" .}}
+</body>
+</html>
+{{end}}

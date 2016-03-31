@@ -1,0 +1,177 @@
+{{define "dashboard"}}
+<html>
+{{template "header" .}}
+<body>
+{{template "top-nav" .}}
+<div class="container" style="padding-top:60px;">
+    <nav class="navbar navbar-default hidden-xs" role="navigation">
+        {{template "database-nav" "dashboard"}}
+    </nav>
+
+    <div>有<span class="badge alert-danger" data-bind="text: failedTasks().length"></span>个失败的任务:</div>
+    <div class="failed-tasks-table-wrapper">
+        <table class="failed-tasks-table table table-striped">
+            <thead>
+            <tr class="row">
+                <th class="col-md-1">主机</th>
+                <th class="col-md-1">任务类型</th>
+                <th class="col-md-2">开始时间</th>
+                <th class="col-md-3">结束时间</th>
+                <th class="col-md-4">错误日志</th>
+                <th class="col-md-1">操作</th>
+            </tr>
+            </thead>
+            <tbody data-bind="template: { name: 'failedTaskTemplate', foreach: failedTasks, as: 'data', }"></tbody>
+            <script type="text/html" id="failedTaskTemplate">
+                <tr class="row">
+                    <td data-bind="text: servername"></td>
+                    <td data-bind="text: formatter.getDisplayForType(type)"></td>
+                    <td data-bind="text: formatter.getDatetime(starttime)"></td>
+                    <td data-bind="text: formatter.getDatetime(endtime)"></td>
+                    <td data-bind="text: errinfo" style="word-wrap:break-word;word-break:break-all;"></td>
+                    <td><a href="#" data-bind="click: $parent.dismissTask"><i class="fa fa-wrench" data-toggle="tooltip"
+                                                                      title="干掉它!"></i></a></td>
+                </tr>
+            </script>
+        </table>
+    </div>
+
+    <div class="headline">有<span class="badge alert-info" data-bind="text: runningTasks().length"></span>个正在执行中的任务:
+    </div>
+    <div class="running-tasks-table-wrapper">
+        <table class="running-tasks-table table table-striped">
+            <thead>
+            <tr class="row">
+                <th class="col-md-1">主机</th>
+                <th class="col-md-1">任务类型</th>
+                <th class="col-md-2">开始时间</th>
+                <th class="col-md-3">已运行</th>
+                <th class="col-md-4"></th>
+                <th class="col-md-1">操作</th>
+            </tr>
+            </thead>
+            <tbody data-bind="template: { name: 'dataTemplate', foreach: runningTasks, as: 'data', }"></tbody>
+            <script type="text/html" id="dataTemplate">
+                <tr class="row">
+                    <td data-bind="text: data.servername"></td>
+                    <td data-bind="text: formatter.getDisplayForType(type)"></td>
+                    <td data-bind="text: formatter.getDatetime(starttime)"></td>
+                    <td data-bind="text: uptime"></td>
+                    <td></td>
+                    <td><button class="my-button" data-toggle="modal" data-target="#ErrorLog" data-bind="click:$parent.setCurTask"><i class="fa fa-wrench" data-toggle="tooltip"
+                                                                      title ="干掉它!"></i></button></td>
+                </tr>
+            </script>
+        </table>
+    </div>
+
+    <div class="modal fade" id="ErrorLog" tabindex="-1">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>
+                        任务停止
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        </thead>
+                        <tbody>
+                            输入错误信息: <textarea id="error-log" cols="100" rows="5" style="vertical-align: top;"></textarea>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-bind="click:addErrorLog">
+                        确定
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{template "footer" .}}
+
+<script type="text/javascript">
+    var vm = function () {
+        var self = this;
+        self.curTask = null;
+        self.runningTasks = ko.observableArray([]);
+        self.failedTasks = ko.observableArray([]);
+        self.failedCount = ko.observable(0);
+        self.loadRunningTasks = function () {
+            $.getJSON('/api/v1/jobresults/run', function (data) {
+                if (data.errcode == 0) {
+                    if (data.data != null) {
+                        self.runningTasks.removeAll();
+                        data.data.forEach(function (item) {
+                            item.uptime = formatter.getUptime(item.starttime);
+                            self.runningTasks.push(item);
+                        });
+                    }
+                }
+            });
+        };
+        self.loadFailedTasks = function () {
+            $.getJSON('/api/v1/jobresults/error', function (data) {
+                if (data.errcode == 0) {
+                    if (data.data != null) {
+                        self.failedTasks.removeAll();
+                        data.data.forEach(function (item) {
+                            self.failedTasks.push(item);
+                        });
+                    }
+                }
+            })
+        };
+        self.dismissTask = function (data) {
+            if (confirm("你确定要干掉这个警报吗？")) {
+                $.post("/api/v1/jobresults/" + data['_id'] + "/dismiss", null, function (rec) {
+                    var json = JSON.parse(rec);
+                    if (json.errcode == 0) {
+                        alert('成功');
+                        self.failedTasks.remove(data);
+                    } else {
+                        alert('失败');
+                    }
+                });
+            }
+        };
+        self.setCurTask = function (data) {
+            self.curTask = data;
+        };
+        self.addErrorLog = function (data) {
+            console.log(self.curTask);
+            $.ajax("/api/v1/jobresults/abort",{
+                type: "POST",
+                data: {
+                    error: $("#error-log")[0].value,
+                    id: self.curTask._id
+                }
+            }).then(
+                    function (resp) {
+                        resp = JSON.parse(resp);
+//                        console.log(resp)
+                        if (resp.errcode != 0) {
+                            alert(resp.errmsg);
+                        }else {
+                            $("#error-log")[0].value = null;
+                            location = location;
+                        }
+                    },
+                    function () {
+                        alert("添加错误日志失败！");
+            });
+        };
+        self.loadRunningTasks();
+        self.loadFailedTasks();
+    };
+    ko.applyBindings(new vm());
+</script>
+</body>
+</html>
+{{end}}
