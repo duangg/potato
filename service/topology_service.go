@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"time"
 	"strings"
+	"log"
 
 	"github.com/hypersleep/easyssh"
 	"github.com/SpruceX/potato/models"
