@@ -205,19 +205,9 @@ func SessionCheck(c *Context, w http.ResponseWriter, r *http.Request) (bool, err
 }
 
 func logout(c *Context, w http.ResponseWriter, r *http.Request) {
+	/*
 	var infoArray []string = make([]string, 1)
 	infoArray[0] = utils.Cfg.RedirectUrl
 	utils.WriteJson(w, infoArray)
-
-//	token, err := r.Cookie(UserTokenName)
-//	if err != nil {
-//		c.Err = NewAppError("logout", "token is not found, no action is performed", http.StatusBadRequest)
-//		return
-//	}
-//	err = Srv.Service.User.Logout(token.Value)
-//	if err != nil {
-//		utils.WriteJson(w, "logout failure")
-//		return
-//	}
-//	utils.WriteJson(w, "logout ok")
+	*/
 }

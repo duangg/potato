@@ -4,5 +4,5 @@
   "site_name":"potato",
   "mongo":"127.0.0.1:27017",
   "sshprivatekey":"/.ssh/id_rsa",
-  "shellname":"xbackup.sh",
+  "shellname":"xbackup.sh"
 }

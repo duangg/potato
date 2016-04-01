@@ -61,6 +61,7 @@ type handler struct {
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer recoverError(w)
 	c := &Context{}
+	/*
 	if h.requireLogin {
 		result, _ := SessionCheck(c, w, r)
 		if !result {
@@ -68,6 +69,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	*/
 	h.handleFunc(c, w, r)
 	if c.Err != nil {
 		appErr := c.Err.(*AppError)
