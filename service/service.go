@@ -1,6 +1,8 @@
 package service
 
 import (
+	"log"
+
 	"github.com/SpruceX/potato/models"
 	"github.com/SpruceX/potato/store"
 )

@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"io/ioutil"
 	"encoding/json"
+	"log"
 
 	"github.com/gorilla/mux"
 

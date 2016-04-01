@@ -3,6 +3,7 @@ package web
 import (
 	"html/template"
 	"net/http"
+	"log"
 
 	"gopkg.in/fsnotify.v1"
 	"github.com/SpruceX/potato/api"

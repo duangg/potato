@@ -3,8 +3,9 @@ package api
 import (
 	"errors"
 	"net/http"
-	"strconv"
+//	"strconv"
 	"time"
+//	"log"
 
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
