@@ -17,3 +17,16 @@ type JobResult struct {
 	Type       int           `bson:"type" json:"type"` //0-全库备份 1-增量备份 2-压缩 3-还原
 	Dismiss    bool          `bson:"dismiss" json:"dismiss"`
 }
+
+const (
+	JobInProgress = iota + 1
+	JobFailed
+	JobSucceeded
+)
+
+const (
+	JobTypeFullBackup = iota
+	JobTypeIncBackup
+	JobTypeCompress
+	JobTypeRestore
+)

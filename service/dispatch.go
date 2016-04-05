@@ -4,6 +4,7 @@ import (
 	"log"
 )
 
+//TODO(runyang) get rid of duplicate enums
 const (
 	FULL = iota
 	INCR

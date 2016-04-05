@@ -45,7 +45,7 @@ func (j *JobResultStore) SaveJobResult(serverName, jobId, err string, starttime,
 		}
 		return getJobResultCol(session).Insert(jobresult)
 	} else {
-		if ((jobresult.Status == 2) || (jobresult.Status == 3)){
+		if ((jobresult.Status == models.JobFailed) || (jobresult.Status == models.JobSucceeded)){
 			return errors.New("The job is in error or finish status")
 		}
 		jobresult.EndTime = endtime
@@ -92,7 +92,7 @@ func (j *JobResultStore) FindAllBackupErrorResult() ([]models.JobResult, error) 
 	session := j.GetSession()
 	defer session.Close()
 	var jobresults []models.JobResult
-	err := getJobResultCol(session).Find(bson.M{"status": 2, "dismiss": false}).Sort("servername", "-starttime", "type").All(&jobresults)
+	err := getJobResultCol(session).Find(bson.M{"status": models.JobFailed, "dismiss": false}).Sort("servername", "-starttime", "type").All(&jobresults)
 	return jobresults, err
 }
 
@@ -100,7 +100,7 @@ func (j *JobResultStore) FindAllBackupRunningResult() ([]models.JobResult, error
 	session := j.GetSession()
 	defer session.Close()
 	var jobresults []models.JobResult
-	err := getJobResultCol(session).Find(bson.M{"status": 1}).Sort("servername", "-starttime", "type").All(&jobresults)
+	err := getJobResultCol(session).Find(bson.M{"status": models.JobInProgress}).Sort("servername", "-starttime", "type").All(&jobresults)
 	return jobresults, err
 }
 
@@ -112,7 +112,7 @@ func (j *JobResultStore) DismissBackupErrorResult(id string) error {
 	if error != nil {
 		return error
 	}
-	if jobresult.Status != 2 {
+	if jobresult.Status != models.JobFailed {
 		return errors.New("The job is not error status")
 	}
 	jobresult.Dismiss = true
@@ -128,10 +128,10 @@ func (j *JobResultStore) AbortRunningBackupResult(id, err string) (error, string
 		return error, ""
 	}
 	//the job is not in running, return error
-	if jobresult.Status != 1 {
+	if jobresult.Status != models.JobInProgress {
 		return errors.New("The job is not running status"), ""
 	}
-	jobresult.Status = 2
+	jobresult.Status = models.JobFailed
 	jobresult.ErrInfo = err
 	jobresult.EndTime = time.Now()
 	return getJobResultCol(session).Update(bson.M{"_id": bson.ObjectIdHex(id)}, jobresult), jobresult.JobId.Hex()
