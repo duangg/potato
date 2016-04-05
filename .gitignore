@@ -1,0 +1,42 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+logs
+tags
+.DS_Store
+node_modules
+dist
+npm-debug.log
+
+bundle*.js
+
+### Go template
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+*.iml
+*.log
+
+# Folders
+_obj
+_test
+.idea/
+swagger/*
+ops-center
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+_testmain.go
+
+*.exe
+*.test
+*.prof
+*.tmp
