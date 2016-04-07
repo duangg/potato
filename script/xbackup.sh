@@ -91,7 +91,7 @@ scp_lftp(){
 	    	else
               	printf "ERROR:failed to remove ${MYSQL_BACKUP_DIR}/${DATA_TIME_Yesterday}/ful/${ful_dir}\n" >> "${MYSQL_BACKUP_DIR}/compresslog"
             fi
-        done            
+        done
     else
         printf "ERROR:${MYSQL_BACKUP_DIR}/${DATA_TIME_Yesterday}/ful is not exist\n" >> "${MYSQL_BACKUP_DIR}/compresslog"
     fi

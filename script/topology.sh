@@ -14,6 +14,10 @@ CHECK_SLAVE_IO="Slave_IO_Running"
 CHECK_SLAVE_SQL="Slave_SQL_Running"
 CHECK_MASTER_HOST="Master_Host"
 
+usage()
+{
+    echo "Usage: $0 isslave|checkslavestatus|getmasterslave|getslavemaster|getdatabase|getdbtable|getdbtabledesc"
+}
 
 isslave(){
 	MYSQL_SLAVE=$(mysql --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --host="${MYSQL_HOST}" --port="${MYSQL_PORT}" --socket="${MYSQL_SOCKET}" -e "show slave status\G") 
@@ -88,4 +92,6 @@ case $1 in
 		getdbtabledesc
 		;;
 	*)
+        usage
+        ;;
 esac
