@@ -25,6 +25,13 @@ const (
 )
 
 const (
+	BackupComplete = iota
+	BackupError
+	XtrabackupNotFind
+	BackupErrorSSH
+)
+
+const (
 	JobTypeFullBackup = iota
 	JobTypeIncBackup
 	JobTypeCompress

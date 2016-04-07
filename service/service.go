@@ -1,7 +1,7 @@
 package service
 
 import (
-	"log"
+//	"log"
 
 	"github.com/SpruceX/potato/models"
 	"github.com/SpruceX/potato/store"
@@ -25,21 +25,14 @@ type FileService interface {
 }
 
 type BackupService interface {
-	FullBackup(jobId, serverName string)
-	IncBackup(jobId, serverName string)
 	IsInBackup(serverName string) bool
-	Compress(jobId, serverName string)
+	Execute(dispatch *Dispatch)
 }
 
 var AllService *Service
 
 func Init() {
 	AllService = NewService()
-	if backup, ok := AllService.BackupService.(ManualBackupService); ok {
-		backup.CheckAllRunningJobResult()
-	} else {
-		log.Println("failed  to convert type of service.BackupService")
-	}
 	AllService.Topology.TimeRefreshTopology()
 }
 

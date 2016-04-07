@@ -1,4 +1,4 @@
-package runtime
+package command
 
 //TODO(runyang) abstract the ssh command interface
 type AsyncSSHJob interface {

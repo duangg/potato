@@ -27,7 +27,7 @@ func NewDispatch(id, host string, typei int) *Dispatch {
 
 func (dispatch *Dispatch) Send() {
 	types := dispatch.Type
-	id := dispatch.Id
+//	id := dispatch.Id
 	host := dispatch.Host
 
 	switch types {
@@ -35,14 +35,14 @@ func (dispatch *Dispatch) Send() {
 		if ok := AllService.BackupService.IsInBackup(host); ok {
 			return
 		}
-		AllService.BackupService.FullBackup(id, host)
+		AllService.BackupService.Execute(dispatch)
 	case INCR:
 		if ok := AllService.BackupService.IsInBackup(host); ok {
 			return
 		}
-		AllService.BackupService.IncBackup(id, host)
+		AllService.BackupService.Execute(dispatch)
 	case COMPRESS:
-		AllService.BackupService.Compress(id, host)
+		AllService.BackupService.Execute(dispatch)
 	default:
 		log.Println("dispatch type error")
 	}
