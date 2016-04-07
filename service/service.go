@@ -10,7 +10,7 @@ import (
 type Service struct {
 	FileService
 	BackupService
-	Sched *Schedule
+	Sched *Scheduler
 	User  *ApiUserService
 	Topology  *TopologyService
 }
@@ -41,7 +41,7 @@ func NewService() *Service {
 	service.BackupService = ManualBackupService{store.Store}
 	ServerStatus = make(map[string]int)
 
-	service.Sched = InitSched()
+	service.Sched = NewSched()
 	service.User = InitUser()
 
 	service.Topology = &TopologyService{store.Store}

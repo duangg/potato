@@ -25,7 +25,6 @@ func NewServer() {
 	log.Printf("Server is initializing...")
 	Srv = &Server{}
 	Srv.Store = store.Store
-	//      Srv.Sched = initSched()
 	Srv.Service = service.AllService
 	Srv.Router = mux.NewRouter()
 	Srv.Router.NotFoundHandler = http.NotFoundHandler()

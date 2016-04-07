@@ -28,6 +28,7 @@ func main() {
 	utils.LoadConfig(*configFolder)
 	store.Init()
 	service.Init()
+	service.AllService.Sched.Start()
 	api.NewServer()
 	api.InitApi()
 	web.InitWeb()

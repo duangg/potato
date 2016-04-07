@@ -64,7 +64,7 @@ func (s ManualBackupService) doExecute(dispatch *Dispatch) {
 	startTime := GetTime()
 	if ok := bson.IsObjectIdHex(dispatch.Id); !ok {
 		str := fmt.Sprintf("wrong job id style,id:%s", dispatch.Id)
-		s.doUpdateStatus(dispatch.Host, dispatch.Id, str, startTime, "",  models.JobFailed, dispatch.Type)
+		s.doUpdateStatus(dispatch.Host, dispatch.Id, str, startTime, "", models.JobFailed, dispatch.Type)
 		return
 	}
 	host, err := store.Store.Hosts.FindHostByName(dispatch.Host)
@@ -101,6 +101,7 @@ func (s ManualBackupService) doExecute(dispatch *Dispatch) {
 			s.doUpdateStatus(host.Name, backup.JobID, "", startTime, "", models.JobSucceeded, backup.BackType)
 		}
 		break
+
 	case models.JobTypeCompress:
 		backupTypeStr := "compress"
 		compress := &command.CompressCmd{
@@ -124,6 +125,6 @@ func (s ManualBackupService) doExecute(dispatch *Dispatch) {
 	}
 }
 
-func (s ManualBackupService) Execute(dispatch *Dispatch){
+func (s ManualBackupService) Execute(dispatch *Dispatch) {
 	go s.doExecute(dispatch)
 }

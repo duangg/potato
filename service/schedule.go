@@ -11,19 +11,19 @@ import (
 	"github.com/SpruceX/potato/store"
 )
 
-type Schedule struct {
+type Scheduler struct {
 	crontab map[string]*Job
-	MongoDB *store.CrontabStore
+	Crons *store.CrontabStore
 }
 
-func NewSched() *Schedule {
-	return &Schedule{
+func NewSched() *Scheduler {
+	return &Scheduler{
 		crontab: make(map[string]*Job),
-		MongoDB: store.Store.Crontab,
+		Crons: store.Store.Crontab,
 	}
 }
 
-func NewItem(id bson.ObjectId, status int, types int, timer string, host string, st, rt time.Time) *models.SchedItem {
+func NewCron(id bson.ObjectId, status int, types int, timer string, host string, st, rt time.Time) *models.SchedItem {
 	return &models.SchedItem{
 		Id:          id,
 		Status:      status,
@@ -36,14 +36,8 @@ func NewItem(id bson.ObjectId, status int, types int, timer string, host string,
 	}
 }
 
-func InitSched() (s *Schedule) {
-	sched := NewSched()
-	sched.Startup()
-	return sched
-}
-
-func (sched *Schedule) Startup() {
-	set, err := sched.MongoDB.Traversal()
+func (sched *Scheduler) Start() {
+	set, err := sched.Crons.Traversal()
 	if err != nil {
 		log.Printf("mongoDB traversal null: %s\n", err.Error())
 		return
@@ -52,7 +46,7 @@ func (sched *Schedule) Startup() {
 	for _, item := range set {
 		id := item.Id.Hex()
 		item.RunStatus = QUIET
-		sched.MongoDB.Update(&item)
+		sched.Crons.Update(&item)
 
 		if item.Status == DISABLE {
 			continue
@@ -71,9 +65,9 @@ func (sched *Schedule) Startup() {
 	}
 }
 
-func (sched *Schedule) Insert(job *Job) error {
+func (sched *Scheduler) Insert(job *Job) error {
 	id := job.Id
-	err := sched.MongoDB.Insert(job.SchedItem)
+	err := sched.Crons.Insert(job.SchedItem)
 	if err != nil {
 		return err
 	}
@@ -84,9 +78,9 @@ func (sched *Schedule) Insert(job *Job) error {
 	return nil
 }
 
-func (sched *Schedule) doDelete(id string) error {
+func (sched *Scheduler) doDelete(id string) error {
 	if job, ok := sched.crontab[id]; ok {
-		err := sched.MongoDB.Delete(job.Id)
+		err := sched.Crons.Delete(job.Id)
 		if err != nil {
 			return err
 		}
@@ -97,14 +91,14 @@ func (sched *Schedule) doDelete(id string) error {
 		}
 		job.Stop()
 	} else {
-		return sched.MongoDB.Delete(id)
+		return sched.Crons.Delete(id)
 	}
 
 	return nil
 }
 
-func (sched *Schedule) Delete(id string) error {
-	item, err := sched.MongoDB.Search(id)
+func (sched *Scheduler) Delete(id string) error {
+	item, err := sched.Crons.Search(id)
 	if err != nil {
 		return err
 	}
@@ -118,7 +112,7 @@ func (sched *Schedule) Delete(id string) error {
 	return nil
 }
 
-func (sched *Schedule) Update(job *Job) error {
+func (sched *Scheduler) Update(job *Job) error {
 	if oldJob, ok := sched.crontab[job.Id]; ok {
 		if oldJob.State == RUNNING {
 			oldJob.Stop()
@@ -127,7 +121,7 @@ func (sched *Schedule) Update(job *Job) error {
 		job.SchedItem.RunStatus = oldJob.SchedItem.RunStatus
 		job.SchedItem.StartTime = oldJob.SchedItem.StartTime
 
-		err := sched.MongoDB.Update(job.SchedItem)
+		err := sched.Crons.Update(job.SchedItem)
 		if err != nil {
 			return err
 		}
@@ -139,7 +133,7 @@ func (sched *Schedule) Update(job *Job) error {
 		return nil
 	}
 
-	item, err := sched.MongoDB.Search(job.Id)
+	item, err := sched.Crons.Search(job.Id)
 	if err != nil {
 		return err
 	}
@@ -149,7 +143,7 @@ func (sched *Schedule) Update(job *Job) error {
 	item.Type = job.SchedItem.Type
 	job.SchedItem = &item
 
-	err = sched.MongoDB.Update(&item)
+	err = sched.Crons.Update(&item)
 	if err != nil {
 		return err
 	}
@@ -162,22 +156,22 @@ func (sched *Schedule) Update(job *Job) error {
 	return nil
 }
 
-func (sched *Schedule) Search(id string) (models.SchedItem, error) {
+func (sched *Scheduler) Search(id string) (models.SchedItem, error) {
 	if ok := bson.IsObjectIdHex(id); !ok {
 		return models.SchedItem{}, errors.New("id format error")
 	}
-	return sched.MongoDB.Search(id)
+	return sched.Crons.Search(id)
 }
 
-func (sched *Schedule) Enable(id string) error {
-	item, err := sched.MongoDB.Search(id)
+func (sched *Scheduler) Enable(id string) error {
+	item, err := sched.Crons.Search(id)
 	if err != nil {
 		return err
 	}
 
 	item.Status = ENABLE
 	item.StartTime = time.Now()
-	err = sched.MongoDB.Update(&item)
+	err = sched.Crons.Update(&item)
 	if err != nil {
 		return err
 	}
@@ -202,9 +196,9 @@ func (sched *Schedule) Enable(id string) error {
 	return nil
 }
 
-func (sched *Schedule) Disable(id string) error {
+func (sched *Scheduler) Disable(id string) error {
 	if job, ok := sched.crontab[id]; ok {
-		item, err := sched.MongoDB.Search(id)
+		item, err := sched.Crons.Search(id)
 		if err != nil {
 			return err
 		}
@@ -215,7 +209,7 @@ func (sched *Schedule) Disable(id string) error {
 
 		item.RefreshTime = time.Now()
 		item.Status = DISABLE
-		err = sched.MongoDB.Update(&item)
+		err = sched.Crons.Update(&item)
 		if err != nil {
 			return err
 		}
@@ -231,7 +225,7 @@ func (sched *Schedule) Disable(id string) error {
 	return nil
 }
 
-func (sched *Schedule) UpdateJobStatus(id string, code int) error {
+func (sched *Scheduler) UpdateJobStatus(id string, code int) error {
 	item, err := sched.Search(id)
 	if err != nil {
 		return err
@@ -243,5 +237,5 @@ func (sched *Schedule) UpdateJobStatus(id string, code int) error {
 		item.RunStatus = code
 	}
 
-	return sched.MongoDB.Update(&item)
+	return sched.Crons.Update(&item)
 }

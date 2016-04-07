@@ -49,7 +49,7 @@ func schedInsert(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	id := bson.NewObjectId()
 	timeStamp := time.Now()
-	schedItem := service.NewItem(id, service.ENABLE, typei, timer, host, timeStamp, timeStamp)
+	schedItem := service.NewCron(id, service.ENABLE, typei, timer, host, timeStamp, timeStamp)
 	info := service.NewDispatch(id.Hex(), host, typei)
 	job := service.NewJob(id.Hex(), service.START, sched, schedItem, info)
 
@@ -101,7 +101,7 @@ func schedUpdate(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	timeStamp := time.Now()
-	schedItem := service.NewItem(bson.ObjectIdHex(id), -1, typei, timer, host, timeStamp, timeStamp)
+	schedItem := service.NewCron(bson.ObjectIdHex(id), -1, typei, timer, host, timeStamp, timeStamp)
 	info := service.NewDispatch(id, host, typei)
 	job := service.NewJob(id, service.START, sched, schedItem, info)
 	err = Srv.Service.Sched.Update(job)
@@ -130,7 +130,7 @@ func schedSearch(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func schedSearchAll(c *Context, w http.ResponseWriter, r *http.Request) {
-	item, err := Srv.Service.Sched.MongoDB.Traversal()
+	item, err := Srv.Service.Sched.Crons.Traversal()
 	if err != nil {
 		c.Err = NewAppError("sched search err:", err.Error(), 500)
 		return
