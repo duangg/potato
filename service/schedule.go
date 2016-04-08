@@ -206,7 +206,6 @@ func (sched *Scheduler) Enable(id string) error {
 			Type:item.Type,
 		}
 
-
 		job := NewJob(item.Id.Hex(), START, schedIf, &item, info)
 		sched.crontab[id] = job
 		go job.Run()
