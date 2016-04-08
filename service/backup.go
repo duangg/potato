@@ -15,7 +15,7 @@ import (
 	"github.com/SpruceX/potato/command"
 )
 
-type ManualBackupService struct {
+type AsyncJobService struct {
 	mongoStore *store.MongoStore
 }
 
@@ -35,7 +35,7 @@ func GetTime() time.Time {
 	return time.Now()
 }
 
-func (s ManualBackupService) IsInBackup(serverName string) bool {
+func (s AsyncJobService) isInBackup(serverName string) bool {
 	if status, ok := ServerStatus[serverName]; ok {
 		if status == models.JobInProgress {
 			return true
@@ -47,19 +47,24 @@ func (s ManualBackupService) IsInBackup(serverName string) bool {
 	}
 }
 
-func (s ManualBackupService) doUpdateStatus(hostName, jobId, err string, startTime time.Time, backupLog string, runStatus, backupType int) {
+func (s AsyncJobService) doUpdateStatus(hostName, jobId, err string, startTime time.Time, backupLog string, runStatus, backupType int) {
 	endTime := GetTime()
 	ServerStatus[hostName] = runStatus
 	AllService.Sched.UpdateJobStatus(jobId, runStatus)
 	s.mongoStore.JobResult.SaveJobResult(hostName, jobId, err, startTime, endTime, backupLog, runStatus, backupType)
 }
 
-func (s ManualBackupService) doExecute(dispatch *HostInfo) {
+func (s AsyncJobService) doExecute(dispatch *HostInfo) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Printf("find panic", err)
 		}
 	}()
+
+	if s.isInBackup(dispatch.Host) {
+		log.Printf("there is a running job in %s", dispatch.Host)
+		return
+	}
 
 	startTime := GetTime()
 	if ok := bson.IsObjectIdHex(dispatch.Id); !ok {
@@ -74,57 +79,41 @@ func (s ManualBackupService) doExecute(dispatch *HostInfo) {
 		return
 	}
 
+	var asyncJob command.AsyncSSHJob
+
 	switch dispatch.Type {
 	case models.JobTypeFullBackup, models.JobTypeIncBackup:
-		backupTypeStr := ""
-		if dispatch.Type ==  models.JobTypeFullBackup {
-			backupTypeStr = "full"
-		} else {
-			backupTypeStr = "inc"
-		}
-
-		backup := &command.BackupCmd{
+		asyncJob = &command.BackupCmd{
 			Target : makeSshClient(&host),
 			Host : &host,
 			BackType : dispatch.Type,
 			JobID : dispatch.Id,
-			BackupTypeStr : backupTypeStr,
 			StartTime : startTime,
-		}
-		s.doUpdateStatus(host.Name, backup.JobID, "", startTime, "", models.JobInProgress, backup.BackType)
-		log.Printf("start %s backup,job id:%s\n", backupTypeStr, backup.JobID)
-		err := command.SSHExecutor.Execute(backup)
-		if err != nil {
-			log.Printf(err.Error())
-			s.doUpdateStatus(host.Name, backup.JobID, err.Error(), startTime, "", models.JobFailed, backup.BackType)
-		} else {
-			s.doUpdateStatus(host.Name, backup.JobID, "", startTime, "", models.JobSucceeded, backup.BackType)
 		}
 		break
-
 	case models.JobTypeCompress:
-		backupTypeStr := "compress"
-		compress := &command.CompressCmd{
+		asyncJob = &command.CompressCmd{
 			Target : makeSshClient(&host),
 			Host : &host,
 			BackType : dispatch.Type,
 			JobID : dispatch.Id,
-			BackupTypeStr : backupTypeStr,
 			StartTime : startTime,
-		}
-		s.doUpdateStatus(host.Name, compress.JobID, "", startTime, "", models.JobInProgress, compress.BackType)
-		log.Printf("start %s compress,job id:%s\n", backupTypeStr, compress.JobID)
-		err := command.SSHExecutor.Execute(compress)
-		if err != nil {
-			log.Printf(err.Error())
-			s.doUpdateStatus(host.Name, compress.JobID, err.Error(), startTime, "", models.JobFailed, compress.BackType)
-		} else {
-			s.doUpdateStatus(host.Name, compress.JobID, "", startTime, "", models.JobSucceeded, compress.BackType)
 		}
 		break
 	}
+
+	s.doUpdateStatus(host.Name, dispatch.Id, "", startTime, "", models.JobInProgress, dispatch.Type)
+	log.Printf("start job, id:%s\n", dispatch.Id)
+	err = command.SSHExecutor.Execute(asyncJob)
+	if err != nil {
+		log.Printf(err.Error())
+		s.doUpdateStatus(host.Name, dispatch.Id, err.Error(), startTime, "", models.JobFailed, dispatch.Type)
+	} else {
+		s.doUpdateStatus(host.Name, dispatch.Id, "", startTime, "", models.JobSucceeded, dispatch.Type)
+	}
+
 }
 
-func (s ManualBackupService) Execute(dispatch *HostInfo) {
+func (s AsyncJobService) Execute(dispatch *HostInfo) {
 	go s.doExecute(dispatch)
 }

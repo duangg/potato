@@ -19,7 +19,6 @@ type BackupCmd struct {
 	Target *easyssh.MakeConfig
 	Host *models.Host
 	BackType int
-	BackupTypeStr string
 	JobID string
 	StartTime time.Time
 }
@@ -44,11 +43,11 @@ const (
 )
 
 func (b *BackupCmd) UploadScript() error {
-	log.Printf("upload script to host:%s in %s backup job:%s\n", b.Host.Name, b.BackupTypeStr, b.JobID)
+	log.Printf("upload script to host:%s in %s backup job:%s\n", b.Host.Name, GetCmdType(b.BackType), b.JobID)
 	_, errTest := b.Target.Run("ls")
 	if errTest != nil {
 		return errors.New(fmt.Sprintf("failed to scp file to %s in %s backup job %s, error info-%s",
-			b.BackupTypeStr, b.Host.Name, b.JobID, errTest.Error()))
+			GetCmdType(b.BackType), b.Host.Name, b.JobID, errTest.Error()))
 	}
 
 	cmdPara := fmt.Sprintf("%s@%s:%s/", b.Host.UserName, b.Host.IP, b.Host.BackupPath)
@@ -57,24 +56,37 @@ func (b *BackupCmd) UploadScript() error {
 	_, err := cmd.Output()
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to scp file to %s in %s backup job %s, error info-%s",
-			b.BackupTypeStr, b.Host.Name, b.JobID, err.Error()))
+			GetCmdType(b.BackType), b.Host.Name, b.JobID, err.Error()))
 	}
 	return nil
 }
 
 func (b *BackupCmd) CleanUp() error {
-	log.Printf("clean up in host:%s in %s backup job:%s\n", b.Host.Name, b.BackupTypeStr, b.JobID)
+	log.Printf("clean up in host:%s in %s backup job:%s\n", b.Host.Name, GetCmdType(b.BackType), b.JobID)
 	_, err := b.Target.Run(fmt.Sprintf(ClearBackupLog, b.Host.BackupPath))
 	if err != nil {
 		fmt.Printf("CleanUp error-%s\n ", err.Error())
 		return errors.New(fmt.Sprintf("failed to clear %s backup's log for %s in job %s, error info-%s",
-			b.BackupTypeStr, b.Host.Name, b.JobID, err.Error()))
+			GetCmdType(b.BackType), b.Host.Name, b.JobID, err.Error()))
 	}
 	return nil
 }
 
+func GetCmdType(cmdType int) string {
+	backupTypeStr := ""
+	switch cmdType {
+	case models.JobTypeFullBackup:
+		backupTypeStr = "full"
+	case models.JobTypeIncBackup:
+		backupTypeStr = "inc"
+	case models.JobTypeCompress:
+		backupTypeStr = "compress"
+	}
+	return backupTypeStr
+}
+
 func (b *BackupCmd) Execute() error {
-	log.Printf("execute script in host:%s in %s backup job:%s\n", b.Host.Name, b.BackupTypeStr, b.JobID)
+	log.Printf("execute script in host:%s in %s backup job:%s\n", b.Host.Name, GetCmdType(b.BackType), b.JobID)
 	shellStr := ""
 	if b.BackType == models.JobTypeFullBackup {
 		shellStr = ShellFullBackupContent
@@ -90,7 +102,7 @@ func (b *BackupCmd) Execute() error {
 	_, err := cmd.Output()
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to exec %s backup's shell file for %s in job %s, error info-%s",
-			b.BackupTypeStr, b.Host.Name, b.JobID, err.Error()))
+			GetCmdType(b.BackType), b.Host.Name, b.JobID, err.Error()))
 	}
 	return nil
 }
@@ -111,7 +123,7 @@ func (b *BackupCmd) getBackupErrInfo( ) error {
 	fmt.Printf("getErrInfo-%s,errGetErrInfo-%s \n", getErrInfo, errGetErrInfo.Error())
 	if errGetErrInfo == nil {
 		return errors.New(fmt.Sprintf("failed to %s backup for %s in job %s, error info-%s",
-			b.BackupTypeStr, b.Host.Name, b.JobID, getErrInfo))
+			GetCmdType(b.BackType), b.Host.Name, b.JobID, getErrInfo))
 	} else {
 
 	}
@@ -119,7 +131,7 @@ func (b *BackupCmd) getBackupErrInfo( ) error {
 }
 
 func (b *BackupCmd) CheckResult() error {
-	log.Printf("check backup result in host:%s in %s backup job:%s\n", b.Host.Name, b.BackupTypeStr, b.JobID)
+	log.Printf("check backup result in host:%s in %s backup job:%s\n", b.Host.Name, GetCmdType(b.BackType), b.JobID)
 	ret := models.BackupComplete
 	result := ""
 	for {
@@ -127,7 +139,7 @@ func (b *BackupCmd) CheckResult() error {
 		resultGetResultOK, errGetResultOK := b.Target.Run(fmt.Sprintf(GetResultOK, b.Host.BackupPath))
 		if errGetResultOK != nil {
 			result = fmt.Sprintf("failed to get %s backup complete flag for %s in job %s, error info-%s",
-				b.BackupTypeStr, b.Host.Name, b.JobID, errGetResultOK.Error())
+				GetCmdType(b.BackType), b.Host.Name, b.JobID, errGetResultOK.Error())
 			ret = models.BackupErrorSSH
 		} else {
 			res, _ := strconv.Atoi(strings.Trim(resultGetResultOK, "\n"))
@@ -140,7 +152,7 @@ func (b *BackupCmd) CheckResult() error {
 		_, errNotFindError := b.Target.Run(fmt.Sprintf(XtrabackupNotFind, b.Host.BackupPath))
 		if errNotFindError != nil {
 			result = fmt.Sprintf("failed to check xtraback exist in %s backup for %s in job %s, error info-%s",
-				b.BackupTypeStr, b.Host.Name, b.JobID, errNotFindError.Error())
+				GetCmdType(b.BackType), b.Host.Name, b.JobID, errNotFindError.Error())
 			ret = models.BackupErrorSSH
 		} else {
 			ret = models.XtrabackupNotFind
@@ -149,7 +161,7 @@ func (b *BackupCmd) CheckResult() error {
 		resultGetResultError, errGetResultError := b.Target.Run(fmt.Sprintf(GetResultError, b.Host.BackupPath))
 		if errGetResultError != nil {
 			result = fmt.Sprintf("failed to get error info in %s backup for %s in job %s, error info-%s",
-				b.BackupTypeStr, b.Host.Name, b.JobID, errGetResultError.Error())
+				GetCmdType(b.BackType), b.Host.Name, b.JobID, errGetResultError.Error())
 			ret = models.BackupErrorSSH
 		} else {
 			resError, _ := strconv.Atoi(strings.Trim(resultGetResultError, "\n"))
@@ -171,7 +183,7 @@ func (b *BackupCmd) CheckResult() error {
 		return errors.New(result)
 	case models.XtrabackupNotFind:
 		strErr := "innobackupex is not found"
-		return errors.New(fmt.Sprintf("failed to %s backup for %s in job %s, error info-%s", b.BackupTypeStr, b.Host.Name, b.JobID, strErr))
+		return errors.New(fmt.Sprintf("failed to %s backup for %s in job %s, error info-%s", GetCmdType(b.BackType), b.Host.Name, b.JobID, strErr))
 	}
 	return nil
 }
@@ -192,12 +204,12 @@ func (b *BackupCmd) getBackupSuccInfo() error {
 		output, err := b.Target.Run(fmt.Sprintf(GetBackupFileSize, getBackupFile))
 		if err != nil {
 			return errors.New(fmt.Sprintf("failed to get %s backup file size for %s in job %s, error info-%s",
-				b.BackupTypeStr, b.Host.Name, b.JobID, err.Error()))
+				GetCmdType(b.BackType), b.Host.Name, b.JobID, err.Error()))
 		}
 		//write backup file db and job result db
 		filesizeinfo := strings.Split(output, "\t")
 		store.Store.BackupFileResult.SaveBackupFileResult(b.Host.Name, filedate[0], b.BackType, b.JobID, getBackupFile, filesizeinfo[0], time.Now())
-		log.Printf("%s backup succeful for %s in job %s, backup file:%s", b.BackupTypeStr, b.Host.Name, b.JobID, getBackupFile)
+		log.Printf("%s backup succeful for %s in job %s, backup file:%s", GetCmdType(b.BackType), b.Host.Name, b.JobID, getBackupFile)
 	} else {
 
 	}

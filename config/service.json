@@ -2,7 +2,7 @@
   "ip":"127.0.0.1",
   "port":"8080",
   "site_name":"potato",
-  "mongo":"127.0.0.1:27017",
+  "mongo":"192.168.136.81:27017",
   "sshprivatekey":"/.ssh/id_rsa",
   "shellname":"xbackup.sh"
 }

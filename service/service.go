@@ -25,7 +25,6 @@ type FileService interface {
 }
 
 type BackupService interface {
-	IsInBackup(serverName string) bool
 	Execute(dispatch *HostInfo)
 }
 
@@ -38,7 +37,7 @@ func Init() {
 
 func NewService() *Service {
 	service := &Service{}
-	service.BackupService = ManualBackupService{store.Store}
+	service.BackupService = AsyncJobService{store.Store}
 	ServerStatus = make(map[string]int)
 
 	service.Sched = NewSched()

@@ -31,11 +31,11 @@ type CompressCmd struct {
 }
 
 func (b *CompressCmd) UploadScript() error {
-	log.Printf("upload script to host:%s in %s job:%s\n", b.Host.Name, b.BackupTypeStr, b.JobID)
+	log.Printf("upload script to host:%s in %s job:%s\n", b.Host.Name, GetCmdType(b.BackType), b.JobID)
 	_, errTest := b.Target.Run("ls")
 	if errTest != nil {
 		return errors.New(fmt.Sprintf("failed to scp file to %s in %s job %s, error info-%s",
-			b.BackupTypeStr, b.Host.Name, b.JobID, errTest.Error()))
+			GetCmdType(b.BackType), b.Host.Name, b.JobID, errTest.Error()))
 	}
 
 	cmdPara := fmt.Sprintf("%s@%s:%s/", b.Host.UserName, b.Host.IP, b.Host.BackupPath)
@@ -44,7 +44,7 @@ func (b *CompressCmd) UploadScript() error {
 	_, err := cmd.Output()
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to scp file to %s in %s job %s, error info-%s",
-			b.BackupTypeStr, b.Host.Name, b.JobID, err.Error()))
+			GetCmdType(b.BackType), b.Host.Name, b.JobID, err.Error()))
 	}
 	return nil
 }
@@ -54,7 +54,7 @@ func (b *CompressCmd) CleanUp() error {
 }
 
 func (b *CompressCmd) Execute() error {
-	log.Printf("execute script in host:%s in %s job:%s\n", b.Host.Name, b.BackupTypeStr, b.JobID)
+	log.Printf("execute script in host:%s in %s job:%s\n", b.Host.Name, GetCmdType(b.BackType), b.JobID)
 	cmdPara := fmt.Sprintf(CompressFile, b.Host.BackupPath+"/"+utils.Cfg.Shellname, b.Host.DBUser,
 		b.Host.DBPassword, b.Host.DBPort, b.Host.BackupPath, b.Host.DBHost, b.Host.DBSocket, b.Host.DBMyCnf)
 	_, err := b.Target.Run(cmdPara)
@@ -78,7 +78,7 @@ func (b *CompressCmd) getCompressErrInfo( ) error {
 }
 
 func (b *CompressCmd) CheckResult() error {
-	log.Printf("check result in host:%s in %s job:%s\n", b.Host.Name, b.BackupTypeStr, b.JobID)
+	log.Printf("check result in host:%s in %s job:%s\n", b.Host.Name, GetCmdType(b.BackType), b.JobID)
 	err := b.getCompressErrInfo()
 	if err != nil {
 		return err
