@@ -65,10 +65,10 @@ func (sched *Scheduler) Start() {
 		}
 
 		info := &HostInfo{
-					Id:id,
-					Host:item.Host,
-					Type:item.Type,
-				}
+			Id:id,
+			Host:item.Host,
+			Type:item.Type,
+		}
 
 		job := NewJob(id, START, schedIf, &item, info)
 
@@ -201,10 +201,10 @@ func (sched *Scheduler) Enable(id string) error {
 		}
 
 		info := &HostInfo{
-					Id:id,
-					Host:item.Host,
-					Type:item.Type,
-				}
+			Id:id,
+			Host:item.Host,
+			Type:item.Type,
+		}
 
 
 		job := NewJob(item.Id.Hex(), START, schedIf, &item, info)
