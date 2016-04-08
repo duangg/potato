@@ -16,6 +16,12 @@ type Scheduler struct {
 	Crons *store.CrontabStore
 }
 
+type HostInfo struct {
+	Host string
+	Id   string
+	Type int
+}
+
 func NewSched() *Scheduler {
 	return &Scheduler{
 		crontab: make(map[string]*Job),
@@ -57,7 +63,13 @@ func (sched *Scheduler) Start() {
 			log.Printf("timer format error: %s\n", err.Error())
 			continue
 		}
-		info := NewDispatch(id, item.Host, item.Type)
+
+		info := &HostInfo{
+					Id:id,
+					Host:item.Host,
+					Type:item.Type,
+				}
+
 		job := NewJob(id, START, schedIf, &item, info)
 
 		sched.crontab[id] = job
@@ -187,7 +199,14 @@ func (sched *Scheduler) Enable(id string) error {
 		if err != nil {
 			return err
 		}
-		info := NewDispatch(item.Id.Hex(), item.Host, item.Type)
+
+		info := &HostInfo{
+					Id:id,
+					Host:item.Host,
+					Type:item.Type,
+				}
+
+
 		job := NewJob(item.Id.Hex(), START, schedIf, &item, info)
 		sched.crontab[id] = job
 		go job.Run()

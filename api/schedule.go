@@ -3,9 +3,8 @@ package api
 import (
 	"errors"
 	"net/http"
-//	"strconv"
 	"time"
-//	"log"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
@@ -41,7 +40,7 @@ func schedInsert(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	typei, err := schedGetType(types)
+	schedType, err := strconv.Atoi(types)
 	if err != nil {
 		c.Err = NewAppError("Type Atoi converse error", err.Error(), 500)
 		return
@@ -49,8 +48,13 @@ func schedInsert(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	id := bson.NewObjectId()
 	timeStamp := time.Now()
-	schedItem := service.NewCron(id, service.ENABLE, typei, timer, host, timeStamp, timeStamp)
-	info := service.NewDispatch(id.Hex(), host, typei)
+	schedItem := service.NewCron(id, service.ENABLE, schedType, timer, host, timeStamp, timeStamp)
+	info := &service.HostInfo{
+				Id:id.Hex(),
+				Host:host,
+				Type:schedType,
+			}
+
 	job := service.NewJob(id.Hex(), service.START, sched, schedItem, info)
 
 	err = Srv.Service.Sched.Insert(job)
@@ -94,15 +98,20 @@ func schedUpdate(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	typei, err := schedGetType(types)
+	schedType, err := strconv.Atoi(types)
 	if err != nil {
 		c.Err = NewAppError("Type Atoi converse error", err.Error(), 500)
 		return
 	}
 
 	timeStamp := time.Now()
-	schedItem := service.NewCron(bson.ObjectIdHex(id), -1, typei, timer, host, timeStamp, timeStamp)
-	info := service.NewDispatch(id, host, typei)
+	schedItem := service.NewCron(bson.ObjectIdHex(id), -1, schedType, timer, host, timeStamp, timeStamp)
+	info := &service.HostInfo{
+				Id:id,
+				Host:host,
+				Type:schedType,
+			}
+
 	job := service.NewJob(id, service.START, sched, schedItem, info)
 	err = Srv.Service.Sched.Update(job)
 	if err != nil {
@@ -174,11 +183,11 @@ func schedEnable(c *Context, w http.ResponseWriter, r *http.Request) {
 func schedGetType(types string) (int, error) {
 	switch types {
 	case "0":
-		return service.FULL, nil //Full backup
+		return 0, nil //Full backup
 	case "1":
-		return service.INCR, nil //Incremental backup
+		return 1, nil //Incremental backup
 	case "2":
-		return service.COMPRESS, nil //compress
+		return 2, nil //compress
 	default:
 		return -1, errors.New("Type out of range")
 	}

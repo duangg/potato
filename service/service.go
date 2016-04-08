@@ -26,7 +26,7 @@ type FileService interface {
 
 type BackupService interface {
 	IsInBackup(serverName string) bool
-	Execute(dispatch *Dispatch)
+	Execute(dispatch *HostInfo)
 }
 
 var AllService *Service

@@ -34,17 +34,17 @@ type Job struct {
 	State     int
 	notice    chan string
 	SchedItem *models.SchedItem
-	Dispatch  *Dispatch
+	Info      *HostInfo
 }
 
-func NewJob(id string, state int, sched interface{}, item *models.SchedItem, dispatch *Dispatch) *Job {
+func NewJob(id string, state int, sched interface{}, item *models.SchedItem, info *HostInfo) *Job {
 	return &Job{
 		Id:        id,
 		State:     state,
 		Sched:     sched,
 		notice:    make(chan string),
 		SchedItem: item,
-		Dispatch:  dispatch,
+		Info:      info,
 	}
 }
 
@@ -82,6 +82,5 @@ func TimerCheckFormat(timer string) (sched cron.Schedule, err error) {
 }
 
 func (job *Job) makeCommand() {
-	action := job.Dispatch
-	action.Send()
+	AllService.BackupService.Execute(job.Info)
 }

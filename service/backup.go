@@ -54,7 +54,7 @@ func (s ManualBackupService) doUpdateStatus(hostName, jobId, err string, startTi
 	s.mongoStore.JobResult.SaveJobResult(hostName, jobId, err, startTime, endTime, backupLog, runStatus, backupType)
 }
 
-func (s ManualBackupService) doExecute(dispatch *Dispatch) {
+func (s ManualBackupService) doExecute(dispatch *HostInfo) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Printf("find panic", err)
@@ -125,6 +125,6 @@ func (s ManualBackupService) doExecute(dispatch *Dispatch) {
 	}
 }
 
-func (s ManualBackupService) Execute(dispatch *Dispatch) {
+func (s ManualBackupService) Execute(dispatch *HostInfo) {
 	go s.doExecute(dispatch)
 }
