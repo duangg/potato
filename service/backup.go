@@ -111,7 +111,6 @@ func (s AsyncJobService) doExecute(dispatch *HostInfo) {
 	} else {
 		s.doUpdateStatus(host.Name, dispatch.Id, "", startTime, "", models.JobSucceeded, dispatch.Type)
 	}
-
 }
 
 func (s AsyncJobService) Execute(dispatch *HostInfo) {

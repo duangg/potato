@@ -9,7 +9,7 @@ import (
 
 type Service struct {
 	FileService
-	BackupService
+	SSHService
 	Sched *Scheduler
 	User  *ApiUserService
 	Topology  *TopologyService
@@ -24,7 +24,7 @@ type FileService interface {
 	GetFiles(b *models.Host, folder string) (error)
 }
 
-type BackupService interface {
+type SSHService interface {
 	Execute(dispatch *HostInfo)
 }
 
@@ -37,7 +37,7 @@ func Init() {
 
 func NewService() *Service {
 	service := &Service{}
-	service.BackupService = AsyncJobService{store.Store}
+	service.SSHService = AsyncJobService{store.Store}
 	ServerStatus = make(map[string]int)
 
 	service.Sched = NewSched()

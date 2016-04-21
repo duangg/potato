@@ -82,5 +82,5 @@ func TimerCheckFormat(timer string) (sched cron.Schedule, err error) {
 }
 
 func (job *Job) makeCommand() {
-	AllService.BackupService.Execute(job.Info)
+	AllService.SSHService.Execute(job.Info)
 }
