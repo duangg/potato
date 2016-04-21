@@ -3,40 +3,20 @@
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">Ops Center</a>
+                <a class="navbar-brand" href="#">Potato</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="#">数据备份</a></li>
                 </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li><p id="username" class="navbar-text" style="font-style: oblique;font-weight: bold"></p></li>
-                    <li><a href="settings"><span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-                        Settings</a></li>
-                    <li><a id="signout" href="#">Logout</a> </li>
-                </ul>
+                <!--<ul class="nav navbar-nav navbar-right">-->
+                    <!--<li><p id="username" class="navbar-text" style="font-style: oblique;font-weight: bold"></p></li>-->
+                    <!--<li><a href="settings"><span class="glyphicon glyphicon-list" aria-hidden="true"></span>-->
+                        <!--Settings</a></li>-->
+                    <!--<li><a id="signout" href="#">Logout</a> </li>-->
+                <!--</ul>-->
             </div>
         </div>
     </nav>
-    <script>
-        function Logout(usrname, callback) {
-            var url = "/api/v1/user/" + usrname + "/logout";
-            $.ajax({
-                url: url,
-                type: "POST",
-                complete: callback
-            })
-        }
-        $("#signout").click(function () {
-            Logout($.cookie("meicai_token"), function (data) {
-                var data_json = JSON.parse(data.responseText);
-                window.location = data_json.data[0];
-            });
-        });
-        $(function(){
-//            var user = window.localStorage.getItem("ops-center_username");
-            $("#username").text('');
-        });
-    </script>
 </div>
 {{end}}
