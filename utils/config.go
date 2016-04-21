@@ -16,7 +16,6 @@ type ServiceSettings struct {
 	SiteName      string `json:"site_name"`
 	Mongo         string `json:"mongo"`
 	SshPrivateKey string `json:"sshprivatekey"`
-	Shellname     string `json:"shellname"`
 	SsoVerifyUrl  string `json:"ssoverifyurl"`
 	RedirectUrl   string `json:"redirecturl"`
 	SystemID	  string `json:"systemid"`

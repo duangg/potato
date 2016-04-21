@@ -38,6 +38,7 @@ const (
 	GetBackupFileSize      = "sudo du -s %s"
 	GetBackupLog           = "sudo tail -n 10 %s/log"
 	ShellExecBackupShell   = "exbackup.sh"
+	ShellXBackupFile 	   = "xbackup.sh"
 	ClearBackupLog         = "sudo echo \"\" > %s/log"
 	XtrabackupNotFind = "sudo cat %s/log | grep \"innobackupex: not found\" "
 )
@@ -52,7 +53,7 @@ func (b *BackupCmd) UploadScript() error {
 
 	cmdPara := fmt.Sprintf("%s@%s:%s/", b.Host.UserName, b.Host.IP, b.Host.BackupPath)
 	cmdParaPort := fmt.Sprintf("-P%s", b.Host.SshPort)
-	cmd := exec.Command("scp", cmdParaPort, "./script/"+utils.Cfg.Shellname, cmdPara)
+	cmd := exec.Command("scp", cmdParaPort, "./script/"+ ShellXBackupFile, cmdPara)
 	_, err := cmd.Output()
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to scp file to %s in %s backup job %s, error info-%s",
@@ -95,7 +96,7 @@ func (b *BackupCmd) Execute() error {
 	}
 
 	serverPara := fmt.Sprintf("%s@%s", b.Host.UserName, b.Host.IP)
-	cmdPara := fmt.Sprintf(shellStr, b.Host.BackupPath+"/"+utils.Cfg.Shellname, b.Host.DBUser,
+	cmdPara := fmt.Sprintf(shellStr, b.Host.BackupPath+"/" + ShellXBackupFile, b.Host.DBUser,
 		b.Host.DBPassword, b.Host.DBPort, b.Host.BackupPath, b.Host.DBHost, b.Host.DBSocket, b.Host.DBMyCnf)
 	cmdPort := fmt.Sprintf("%s", b.Host.SshPort)
 	cmd := exec.Command("sh", "./script/" + ShellExecBackupShell, cmdPort, serverPara, cmdPara)
