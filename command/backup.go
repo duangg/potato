@@ -9,9 +9,7 @@ import (
 	"strings"
 
 	"github.com/hypersleep/easyssh"
-
 	"github.com/SpruceX/potato/models"
-	"github.com/SpruceX/potato/utils"
 	"github.com/SpruceX/potato/store"
 )
 
