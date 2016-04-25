@@ -51,7 +51,10 @@ func (s AsyncJobService) doUpdateStatus(hostName, jobId, err string, startTime t
 	endTime := GetTime()
 	ServerStatus[hostName] = runStatus
 	AllService.Sched.UpdateJobStatus(jobId, runStatus)
-	s.mongoStore.JobResult.SaveJobResult(hostName, jobId, err, startTime, endTime, backupLog, runStatus, backupType)
+	errSave := s.mongoStore.JobResult.SaveJobResult(hostName, jobId, err, startTime, endTime, backupLog, runStatus, backupType)
+	if errSave != nil {
+		log.Printf("failed to save job result in host:%s, job:%s, error info:%s", hostName, jobId, errSave.Error())
+	}
 }
 
 func (s AsyncJobService) doExecute(dispatch *HostInfo) {
