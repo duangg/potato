@@ -1,7 +1,5 @@
 #potato
 
----
-
 ![logo](image/logo.png)
 
 ###系统介绍
