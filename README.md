@@ -36,7 +36,6 @@ go build potato.go
   "site_name":"potato",              #系统名称
   "mongo":"127.0.0.1:0000",          #数据库IP及端口
   "sshPrivateKey":"/.ssh/id_rsa",    #SSH私钥路径（不需要加root或其他用户）
-  "shellname":"xbackup.sh",          #不需要修改
 }
 ```
 ### 依赖
