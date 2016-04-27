@@ -1,3 +1,4 @@
+![logo](image/logo.png)
 ###系统介绍
 大多数公司的业务数据基本都存放在数据库中，需要频繁的进行数据库读写。数据库数据的的安全性，灾后恢复，业务扩大后的数据库扩展因此越来越重要。
 
@@ -19,7 +20,7 @@
 - 支持mysql数据库主从网络拓扑实时显示
 
 ### 编译
--  [安装golang](https://golang.org/doc/install "安装golang")
+-  [安装golang 1.5.1](https://golang.org/dl/ "安装golang 1.5.1")
 
 - 编译
 ```shell
