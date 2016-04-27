@@ -7,7 +7,7 @@ import (
 	"strings"
 	"log"
 
-	"github.com/hypersleep/easyssh"
+	"github.com/SpruceX/easyssh"
 	"github.com/SpruceX/potato/models"
 	"github.com/SpruceX/potato/store"
 )

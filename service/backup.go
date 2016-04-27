@@ -2,13 +2,12 @@ package service
 
 import (
 	"fmt"
-//	"os/exec"
-//	"strings"
 	"time"
 	"log"
 
 	"gopkg.in/mgo.v2/bson"
-	"github.com/hypersleep/easyssh"
+
+	"github.com/SpruceX/easyssh"
 	"github.com/SpruceX/potato/models"
 	"github.com/SpruceX/potato/store"
 	"github.com/SpruceX/potato/utils"
