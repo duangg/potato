@@ -94,7 +94,10 @@ func (b *CompressCmd) getCompressSuccInfo() error {
 		files := strings.Split(output, "\n")
 		for _, file := range files {
 			newpath := file + ".tar.gz"
-			store.Store.BackupFileResult.UpdateBackupFilePath(b.Host.Name, file, newpath)
+			err := store.Store.BackupFileResult.UpdateBackupFilePath(b.Host.Name, file, newpath)
+			if err != nil {
+				log.Printf("failed to update compress file new path,file name-%s", file)
+			}
 		}
 	}
 	log.Printf("compress succeful for %s in job %s", b.Host.Name, b.JobID)

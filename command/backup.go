@@ -157,6 +157,7 @@ func (b *BackupCmd) CheckResult() error {
 			ret = models.XtrabackupNotFind
 			break
 		}
+
 		resultGetResultError, errGetResultError := b.Target.Run(fmt.Sprintf(GetResultError, b.Host.BackupPath))
 		if errGetResultError != nil {
 			result = fmt.Sprintf("failed to get error info in %s backup for %s in job %s, error info-%s",
@@ -210,7 +211,7 @@ func (b *BackupCmd) getBackupSuccInfo() error {
 		store.Store.BackupFileResult.SaveBackupFileResult(b.Host.Name, filedate[0], b.BackType, b.JobID, getBackupFile, filesizeinfo[0], time.Now())
 		log.Printf("%s backup succeful for %s in job %s, backup file:%s", GetCmdType(b.BackType), b.Host.Name, b.JobID, getBackupFile)
 	} else {
-
+		log.Printf("failed to get %s bakcup content of log file for %s in job %s", GetCmdType(b.BackType), b.Host.Name, b.JobID)
 	}
 	return nil
 }
